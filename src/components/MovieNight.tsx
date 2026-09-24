@@ -3,18 +3,23 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'reac
 import { Pause, Play, SkipBack, SkipForward, X } from 'lucide-react'
 import { MEDIA, byId, withTag, type MediaItem } from '../lib/media'
 import { radio, type Mood } from '../lib/radio'
+import { writeHash } from '../lib/url'
 
 // ---- open/close from anywhere ----
 let open = false
 const subs = new Set<() => void>()
-export function startMovieNight() {
+export function startMovieNight(opts: { silent?: boolean } = {}) {
   open = true
   subs.forEach((s) => s())
+  if (!opts.silent) writeHash('movie')
 }
-function stop() {
+export function stopMovieNight(opts: { silent?: boolean } = {}) {
+  if (!open) return
   open = false
   subs.forEach((s) => s())
+  if (!opts.silent) writeHash(null, 'replace')
 }
+const stop = () => stopMovieNight()
 
 type Slide = { type: 'title'; act: string; title: string; sub: string; mood: Mood } | { type: 'media'; m: MediaItem; mood: Mood }
 

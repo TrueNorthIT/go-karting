@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { DRIVERS, FASTEST, MAX_LAPS, fmt, type Driver } from '../lib/data'
 import { Chip, Section } from './ui'
 import { PLANS } from '../lib/flags'
+import { mediaFor } from '../lib/media'
 
 type Scale = 'own' | 'field'
 
@@ -60,6 +61,7 @@ export default function Heatmap({ onPick }: { onPick: (d: Driver) => void }) {
                   >
                     <span className="h-3 w-1 rounded-full" style={{ background: d.color }} />
                     {d.name}
+                    {mediaFor(d).length > 0 && <span className="font-mono text-[10px] text-muted">📸{mediaFor(d).length}</span>}
                   </button>
                 </th>
                 {Array.from({ length: MAX_LAPS }, (_, i) => {

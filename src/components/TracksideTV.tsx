@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Maximize2, Volume2, VolumeX } from 'lucide-r
 import { VIDEOS } from '../lib/media'
 import { openMedia } from './MediaViewer'
 import { Section } from './ui'
+import { LinkedText } from './DriverLink'
 
 // A coverflow of every portrait clip. The centre one plays; neighbours fan out in 3D.
 export default function TracksideTV() {
@@ -100,7 +101,9 @@ export default function TracksideTV() {
                       <div className="font-mono text-[10px] tracking-widest text-race uppercase">
                         ● live-ish · clip {k + 1}/{VIDEOS.length}
                       </div>
-                      <div className="mt-1 font-semibold">{v.caption}</div>
+                      <div className="pointer-events-auto mt-1 font-semibold">
+                        <LinkedText text={v.caption} nested />
+                      </div>
                     </div>
                     <span className="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-black/60">
                       <Maximize2 size={14} />

@@ -13,6 +13,7 @@ import {
 } from 'recharts'
 import { DRIVERS, FASTEST, MAX_LAPS, fmt } from '../lib/data'
 import { Chip, Section } from './ui'
+import { DriverLink } from './DriverLink'
 
 type Mode = 'laps' | 'gap'
 
@@ -115,6 +116,14 @@ export default function LapChart() {
         </button>
       </div>
 
+      {selected.length > 0 && (
+        <div className="-mt-1 mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+          <span className="font-mono text-[10px] tracking-widest text-muted uppercase">Dossiers:</span>
+          {DRIVERS.filter((d) => selected.includes(d.id)).map((d) => (
+            <DriverLink key={d.id} d={d} />
+          ))}
+        </div>
+      )}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}

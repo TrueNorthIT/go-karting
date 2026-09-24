@@ -4,6 +4,7 @@ import { ArrowDownUp, Zap } from 'lucide-react'
 import { DRIVERS, FASTEST, fmt, type Driver } from '../lib/data'
 import { Avatar, Chip, Section } from './ui'
 import { FLAG_STATS } from '../lib/flags'
+import { mediaFor } from '../lib/media'
 
 type SortKey = 'position' | 'best' | 'avg' | 'laps' | 'stdDev'
 
@@ -72,6 +73,11 @@ export default function Leaderboard({ onPick }: { onPick: (d: Driver) => void })
                     <span className="flex items-center gap-2 truncate font-semibold">
                       <span className="rounded bg-white/90 px-1 font-mono text-[10px] font-bold text-ink">#{d.kart}</span>
                       {d.name}
+                      {mediaFor(d).length > 0 && (
+                        <span className="rounded-full bg-white/10 px-1.5 font-mono text-[10px] font-normal text-white/80" title="In the photos">
+                          📸{mediaFor(d).length}
+                        </span>
+                      )}
                     </span>
                     <span className="hidden truncate text-xs text-muted md:block">“{d.nickname}”</span>
                     <span className="block font-mono text-xs text-muted md:hidden">

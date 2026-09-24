@@ -4,6 +4,7 @@ import { Shuffle, Swords } from 'lucide-react'
 import { DRIVERS, fmt, type Driver } from '../lib/data'
 import { Avatar, Section } from './ui'
 import { FLAG_STATS } from '../lib/flags'
+import { DriverLink, LinkedText } from './DriverLink'
 
 function Picker({ value, onChange, other }: { value: Driver; onChange: (d: Driver) => void; other: Driver }) {
   return (
@@ -33,6 +34,9 @@ function Picker({ value, onChange, other }: { value: Driver; onChange: (d: Drive
       <span className="text-center text-xs italic" style={{ color: value.color }}>
         “{value.nickname}”
       </span>
+      <DriverLink d={value} className="text-xs">
+        dossier →
+      </DriverLink>
     </div>
   )
 }
@@ -124,7 +128,7 @@ export default function HeadToHead() {
             exit={{ opacity: 0 }}
             className="mx-auto mt-6 max-w-2xl text-center text-white/80"
           >
-            {verdict(a, b)}
+            <LinkedText text={verdict(a, b)} />
           </motion.p>
         </AnimatePresence>
 
@@ -163,7 +167,7 @@ export default function HeadToHead() {
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <h3 className="font-display text-xl uppercase">Lap-by-lap duel</h3>
             <span className="text-sm text-muted">
-              {a.short} won <b className="text-white">{aLapWins}</b> of {shared} shared laps
+              <DriverLink d={a} photos={false}>{a.short}</DriverLink> won <b className="text-white">{aLapWins}</b> of {shared} shared laps
             </span>
           </div>
           <div className="relative flex h-52 items-center gap-[3px]">

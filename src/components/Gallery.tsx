@@ -3,6 +3,8 @@ import { useMemo, useRef, useState } from 'react'
 import { Play, Shuffle } from 'lucide-react'
 import { MEDIA, SPOTTED, driversIn, mediaFor, type MediaItem, type Tag } from '../lib/media'
 import { openMedia } from './MediaViewer'
+import { setPhotoFilter, usePhotoFilter } from '../lib/nav'
+import { DriverLink, LinkedText } from './DriverLink'
 import { Chip, Section } from './ui'
 
 const FILTERS: { key: 'all' | 'video' | Tag; label: string }[] = [
@@ -71,7 +73,7 @@ function Tile({ m, i, onOpen }: { m: MediaItem; i: number; onOpen: () => void })
           <span className="absolute top-2 right-2 flex gap-1">
             {driversIn(m).map((d) => (
               <span key={d.id} className="rounded bg-white/90 px-1 font-mono text-[10px] font-bold text-ink" title={d.name}>
-                #{d.kart}
+                #{d.kart} {d.short}
               </span>
             ))}
           </span>
@@ -82,7 +84,7 @@ function Tile({ m, i, onOpen }: { m: MediaItem; i: number; onOpen: () => void })
           </span>
         )}
         <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/90 to-transparent p-3 pt-8 text-sm transition-transform duration-300 group-hover:translate-y-0">
-          {m.caption}
+          <LinkedText text={m.caption} nested />
         </div>
       </motion.button>
     </motion.div>
@@ -93,7 +95,8 @@ export default function Gallery() {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]['key']>('all')
   const [shown, setShown] = useState(PAGE)
   const [seed, setSeed] = useState(0)
-  const [driver, setDriver] = useState<number | null>(null)
+  const driver = usePhotoFilter()
+  const setDriver = setPhotoFilter
 
   const list = useMemo(() => {
     const base = driver !== null ? mediaFor(SPOTTED.find((d) => d.id === driver)!) :
@@ -156,6 +159,24 @@ export default function Gallery() {
           </Chip>
         ))}
       </div>
+
+      {driver !== null && (() => {
+        const d = SPOTTED.find((x) => x.id === driver)!
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border-l-4 bg-white/[0.04] px-4 py-3 text-sm"
+            style={{ borderColor: d.color }}
+          >
+            Showing kart <b>#{d.kart}</b>: <DriverLink d={d} photos={false} />
+            <span className="text-muted">· {list.length} shots · tap the name for the full dossier</span>
+            <button onClick={() => setDriver(null)} className="ml-auto font-mono text-xs text-muted hover:text-white">
+              clear ✕
+            </button>
+          </motion.div>
+        )
+      })()}
 
       <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
         <AnimatePresence mode="popLayout">

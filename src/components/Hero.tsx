@@ -5,6 +5,9 @@ import { DRIVERS, FASTEST, RACE, SLOWEST_LAP, TOTAL_LAPS, fmt } from '../lib/dat
 import { Avatar, CountUp } from './ui'
 import { HERO_VIDEO, MEDIA, SQUAD } from '../lib/media'
 import { startMovieNight } from './MovieNight'
+import { DEEP_LINK } from '../lib/url'
+import { DriverLink } from './DriverLink'
+import { openDriver } from '../lib/nav'
 import { Clapperboard } from 'lucide-react'
 
 function StartLights({ onDone }: { onDone: () => void }) {
@@ -60,7 +63,8 @@ function StartLights({ onDone }: { onDone: () => void }) {
 }
 
 export default function Hero() {
-  const [intro, setIntro] = useState(true)
+  // skip the start lights when someone arrives on a shared link to a photo/driver/movie
+  const [intro, setIntro] = useState(() => !DEEP_LINK.test(location.hash))
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 600], [0, 200])
   const opacity = useTransform(scrollY, [0, 500], [1, 0])
@@ -180,12 +184,14 @@ export default function Hero() {
           >
             <div className="flex -space-x-3">
               {podium.map((d) => (
-                <Avatar key={d.id} d={d} size={44} ring />
+                <button key={d.id} onClick={() => openDriver(d)} className="transition-transform hover:z-10 hover:-translate-y-1" aria-label={d.name}>
+                  <Avatar d={d} size={44} ring />
+                </button>
               ))}
             </div>
             <div className="text-sm text-muted">
-              <span className="text-white">{podium[0].name}</span> takes the win ahead of {podium[1].short} &{' '}
-              {podium[2].short}
+              <DriverLink d={podium[0]} photos={false} /> takes the win ahead of <DriverLink d={podium[1]} photos={false}>{podium[1].short}</DriverLink> &{' '}
+              <DriverLink d={podium[2]} photos={false}>{podium[2].short}</DriverLink>
             </div>
           </motion.div>
 
@@ -198,7 +204,7 @@ export default function Hero() {
             <motion.button
               whileHover={{ scale: 1.05, rotate: -1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={startMovieNight}
+              onClick={() => startMovieNight()}
               className="flex items-center gap-2 rounded-full bg-race px-5 py-3 font-display text-lg uppercase shadow-[0_0_40px_#ff2a3b88]"
             >
               <Clapperboard size={20} /> Movie Night

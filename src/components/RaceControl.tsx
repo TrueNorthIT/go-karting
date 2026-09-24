@@ -4,6 +4,7 @@ import { BLACK_FLAGS, FLAGS, FLAG_STATS, RED_FLAGS, TIME_UNDER_RED } from '../li
 import { Avatar, CountUp, Section } from './ui'
 import { CARNAGE } from '../lib/media'
 import { openMedia } from './MediaViewer'
+import { DriverLink, LinkedText } from './DriverLink'
 
 const VERDICTS = [
   ['Fastest lap', `${FASTEST.short} (${fmt(FASTEST.best)})`],
@@ -80,7 +81,7 @@ export default function RaceControl({ onPick }: { onPick: (d: Driver) => void })
           <h3 className="relative font-display text-2xl uppercase sm:text-3xl">The rundown</h3>
           <div className="relative mt-4 space-y-4 text-white/80">
             <p>
-              <b className="text-white">{FASTEST.name}</b> takes the fastest lap of the night with a blistering{' '}
+              <DriverLink d={FASTEST} /> takes the fastest lap of the night with a blistering{' '}
               <b className="font-mono text-[#d9a6ff]">{fmt(FASTEST.best)}</b>. Small problem: he also seemed determined to
               overtake anything that moved, gap or no gap. 😂 Fastest driver? Yes. Quietest night? Absolutely not.
             </p>
@@ -115,7 +116,7 @@ export default function RaceControl({ onPick }: { onPick: (d: Driver) => void })
               ))}
             </div>
             <p>
-              And spare a thought for <b className="text-white">Alex Radice</b>, who hurt his back and stepped out after 8 laps. 🤕
+              And spare a thought for <DriverLink d={DRIVERS.find((d) => d.retired)!} />, who hurt his back and stepped out after 8 laps. 🤕
             </p>
           </div>
         </motion.article>
@@ -145,7 +146,9 @@ export default function RaceControl({ onPick }: { onPick: (d: Driver) => void })
                   className="flex items-baseline justify-between gap-4 border-b border-line/60 pb-2 text-sm last:border-0"
                 >
                   <dt className="text-muted">{k}</dt>
-                  <dd className="text-right font-semibold">{v}</dd>
+                  <dd className="text-right font-semibold">
+                    <LinkedText text={v} />
+                  </dd>
                 </motion.div>
               ))}
             </dl>

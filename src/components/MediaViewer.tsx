@@ -2,24 +2,37 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useSyncExternalStore } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { driversIn, type MediaItem } from '../lib/media'
+import { currentDriver, driverHash, openDriver } from '../lib/nav'
+import { writeHash } from '../lib/url'
+import ShareButton from './ShareButton'
+import { LinkedText } from './DriverLink'
 
 // A tiny global store so any strip, grid or card can open the viewer.
 let state: { list: MediaItem[]; index: number } | null = null
 const listeners = new Set<() => void>()
 const emit = () => listeners.forEach((l) => l())
 
-export function openMedia(list: MediaItem[], index: number) {
+export function openMedia(list: MediaItem[], index: number, opts: { silent?: boolean } = {}) {
+  const wasOpen = !!state
   state = { list, index }
   emit()
+  if (!opts.silent) writeHash(`photo/${list[index].id}`, wasOpen ? 'replace' : 'push')
 }
-function close() {
+export function closeMedia(opts: { silent?: boolean } = {}) {
+  if (!state) return
   state = null
   emit()
+  if (opts.silent) return
+  // if a dossier is still open underneath, the URL should point back to it
+  const d = currentDriver()
+  writeHash(d ? driverHash(d) : null, 'replace')
 }
+const close = () => closeMedia()
 function nav(d: number) {
   if (!state) return
   state = { ...state, index: (state.index + d + state.list.length) % state.list.length }
   emit()
+  writeHash(`photo/${state.list[state.index].id}`, 'replace')
 }
 
 export default function MediaViewer() {
@@ -90,14 +103,29 @@ export default function MediaViewer() {
               )}
             </motion.div>
           </AnimatePresence>
-          <p className="mt-4 max-w-xl text-center text-lg">{item.caption}</p>
+          {/* a name in the caption opens the dossier, so get the viewer out of the way first */}
+          <p className="mt-4 max-w-xl text-center text-lg" onClickCapture={(e) => (e.target as HTMLElement).closest('button') && closeMedia({ silent: true })}>
+            <LinkedText text={item.caption} />
+          </p>
           {driversIn(item).length > 0 && (
             <div className="mt-1 mb-1 flex gap-2">
               {driversIn(item).map((d) => (
-                <span key={d.id} className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-sm">
+                <button
+                  key={d.id}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    closeMedia({ silent: true })
+                    openDriver(d)
+                  }}
+                  className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-sm hover:bg-white/25"
+                  title={`Open ${d.name}'s dossier`}
+                >
                   <span className="rounded bg-white px-1 font-mono text-[11px] font-bold text-ink">#{d.kart}</span>
-                  {d.name}
-                </span>
+                  <span className="underline decoration-dotted underline-offset-4" style={{ textDecorationColor: d.color }}>
+                    {d.name}
+                  </span>
+                  →
+                </button>
               ))}
             </div>
           )}
@@ -106,6 +134,9 @@ export default function MediaViewer() {
             {item.kind === 'video' ? ` · 🎬 ${item.duration}s` : ''} · swipe or ← →
           </p>
 
+          <div className="absolute top-4 left-4" onClick={(e) => e.stopPropagation()}>
+            <ShareButton hash={`photo/${item.id}`} title={item.caption} />
+          </div>
           <button onClick={close} className="absolute top-4 right-4 grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Close">
             <X />
           </button>

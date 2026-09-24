@@ -5,6 +5,9 @@ import { AWARDS, DRIVERS, FASTEST, fmt, fmtDelta, type Driver } from '../lib/dat
 import { Avatar } from './ui'
 import { mediaFor } from '../lib/media'
 import { openMedia } from './MediaViewer'
+import ShareButton from './ShareButton'
+import { LinkedText } from './DriverLink'
+import { driverHash, showDriverPhotos } from '../lib/nav'
 import { FLAG_STATS, PLANS } from '../lib/flags'
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -88,13 +91,16 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                         <ChevronRight size={18} />
                       </button>
                     </div>
-                    <button
-                      onClick={onClose}
-                      className="grid h-9 w-9 place-items-center rounded-full border border-line hover:bg-white/10"
-                      aria-label="Close"
-                    >
-                      <X size={18} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <ShareButton hash={driverHash(driver)} title={`${driver.name} · Lap Legends`} />
+                      <button
+                        onClick={onClose}
+                        className="grid h-9 w-9 place-items-center rounded-full border border-line hover:bg-white/10"
+                        aria-label="Close"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
                   </div>
                   <div className="relative mt-6 flex items-center gap-5">
                     <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring' }}>
@@ -135,7 +141,9 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                   style={{ borderColor: driver.color }}
                 >
                   <div className="mb-1 font-mono text-[10px] tracking-[0.3em] text-muted uppercase">Their night</div>
-                  <p className="leading-relaxed text-white/85">{driver.story}</p>
+                  <p className="leading-relaxed text-white/85">
+                    <LinkedText text={driver.story} self={driver} />
+                  </p>
                 </motion.div>
 
                 <div className="grid grid-cols-2 gap-3 px-6 sm:grid-cols-3">
@@ -160,7 +168,20 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                 </div>
 
                 <div className="px-6 pt-6">
-                  <h4 className="mb-3 font-display text-lg uppercase">📸 Spotted on camera</h4>
+                  <div className="mb-3 flex items-baseline justify-between gap-3">
+                    <h4 className="font-display text-lg uppercase">
+                      📸 Spotted on camera{' '}
+                      <span className="font-mono text-sm text-muted">{mediaFor(driver).length}</span>
+                    </h4>
+                    {mediaFor(driver).length > 0 && (
+                      <button
+                        onClick={() => showDriverPhotos(driver)}
+                        className="font-mono text-xs text-race hover:underline"
+                      >
+                        see all in the Paddock →
+                      </button>
+                    )}
+                  </div>
                   {mediaFor(driver).length ? (
                     <div className="scrollbar-thin flex gap-2 overflow-x-auto pb-2">
                       {mediaFor(driver).map((m, k, all) => (

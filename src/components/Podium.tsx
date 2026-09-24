@@ -1,7 +1,8 @@
 import confetti from 'canvas-confetti'
 import { AnimatePresence, motion, useInView } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
-import { PODIUM_SET as PODIUM_PHOTOS } from '../lib/media'
+import { PODIUM_SET as PODIUM_PHOTOS, mediaFor } from '../lib/media'
+import { showDriverPhotos } from '../lib/nav'
 import { Crown } from 'lucide-react'
 import { DRIVERS, fmt, type Driver } from '../lib/data'
 import { Avatar, Section } from './ui'
@@ -77,6 +78,19 @@ export default function Podium({ onPick }: { onPick: (d: Driver) => void }) {
                 <div className="text-xs italic" style={{ color: d.color }}>
                   “{d.nickname}”
                 </div>
+                {mediaFor(d).length > 0 && (
+                  <span
+                    role="link"
+                    tabIndex={0}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      showDriverPhotos(d)
+                    }}
+                    className="mt-1 rounded-full bg-white/10 px-2 py-0.5 font-mono text-[10px] hover:bg-white/20"
+                  >
+                    📸 {mediaFor(d).length} photos
+                  </span>
+                )}
                 <div className="font-mono text-xs text-muted">best {fmt(d.best)}</div>
               </motion.div>
               <motion.div

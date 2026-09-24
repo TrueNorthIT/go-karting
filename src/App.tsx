@@ -1,5 +1,8 @@
 import { motion, useMotionTemplate, useMotionValue, useScroll, useSpring } from 'motion/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { closeDriver, openDriver, useOpenDriver } from './lib/nav'
+import { startRouter } from './lib/router'
+import { LinkedText } from './components/DriverLink'
 import Awards from './components/Awards'
 import DriverDrawer from './components/DriverDrawer'
 import Gallery from './components/Gallery'
@@ -17,7 +20,7 @@ import Podium from './components/Podium'
 import RaceControl from './components/RaceControl'
 import RaceRadio from './components/RaceRadio'
 import RaceReplay from './components/RaceReplay'
-import { DRIVERS, FASTEST, RACE, fmt, type Driver } from './lib/data'
+import { DRIVERS, FASTEST, RACE, fmt } from './lib/data'
 
 const NAV = [
   ['podium', 'Podium'],
@@ -43,10 +46,12 @@ function Ticker() {
   ]
   return (
     <div className="relative overflow-hidden border-y border-line bg-race py-2 text-sm font-semibold text-white">
-      <div className="flex w-max animate-marquee gap-10 whitespace-nowrap">
+      <div className="flex w-max animate-marquee gap-10 whitespace-nowrap hover:[animation-play-state:paused]">
         {[...items, ...items].map((t, i) => (
           <span key={i} className="flex items-center gap-10">
-            {t}
+            <span>
+              <LinkedText text={t} />
+            </span>
             <span className="checker inline-block h-3 w-6 opacity-60" />
           </span>
         ))}
@@ -56,7 +61,8 @@ function Ticker() {
 }
 
 export default function App() {
-  const [picked, setPicked] = useState<Driver | null>(null)
+  const picked = useOpenDriver()
+  useEffect(() => startRouter(), [])
   const [active, setActive] = useState<string>('')
   const { scrollYProgress } = useScroll()
   const progress = useSpring(scrollYProgress, { stiffness: 200, damping: 30 })
@@ -86,8 +92,8 @@ export default function App() {
     return () => io.disconnect()
   }, [])
 
-  const pick = useCallback((d: Driver) => setPicked(d), [])
-  const close = useCallback(() => setPicked(null), [])
+  const pick = openDriver
+  const close = closeDriver
 
   return (
     <div className="relative min-h-screen">

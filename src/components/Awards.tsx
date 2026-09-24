@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import { useState } from 'react'
 import { AWARDS, type Driver } from '../lib/data'
 import { Avatar, Section } from './ui'
+import { DriverLink } from './DriverLink'
 
 export default function Awards({ onPick }: { onPick: (d: Driver) => void }) {
   const [flipped, setFlipped] = useState<Set<number>>(new Set())
@@ -67,7 +68,9 @@ export default function Awards({ onPick }: { onPick: (d: Driver) => void }) {
                 >
                   <div className="checker absolute inset-x-0 top-0 h-3 opacity-20" />
                   <Avatar d={a.driver} size={64} ring />
-                  <div className="text-lg font-semibold">{a.driver.name}</div>
+                  <div className="text-lg">
+                    <DriverLink d={a.driver} nested />
+                  </div>
                   <div className="font-mono text-3xl font-extrabold">{a.stat}</div>
                   <span
                     role="link"
