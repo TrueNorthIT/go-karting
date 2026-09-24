@@ -1,7 +1,7 @@
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 import { useMemo, useRef, useState } from 'react'
 import { Play, Shuffle } from 'lucide-react'
-import { MEDIA, type MediaItem, type Tag } from '../lib/media'
+import { MEDIA, SPOTTED, driversIn, mediaFor, type MediaItem, type Tag } from '../lib/media'
 import { openMedia } from './MediaViewer'
 import { Chip, Section } from './ui'
 
@@ -67,6 +67,15 @@ function Tile({ m, i, onOpen }: { m: MediaItem; i: number; onOpen: () => void })
         ) : (
           <img src={m.thumb} alt={m.caption} loading="lazy" className="w-full object-cover" style={{ aspectRatio: `${m.w} / ${m.h}` }} />
         )}
+        {driversIn(m).length > 0 && (
+          <span className="absolute top-2 right-2 flex gap-1">
+            {driversIn(m).map((d) => (
+              <span key={d.id} className="rounded bg-white/90 px-1 font-mono text-[10px] font-bold text-ink" title={d.name}>
+                #{d.kart}
+              </span>
+            ))}
+          </span>
+        )}
         {m.kind === 'video' && (
           <span className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-black/70 px-2 py-0.5 font-mono text-[10px]">
             <Play size={10} fill="currentColor" /> {m.duration}s
@@ -84,14 +93,15 @@ export default function Gallery() {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]['key']>('all')
   const [shown, setShown] = useState(PAGE)
   const [seed, setSeed] = useState(0)
+  const [driver, setDriver] = useState<number | null>(null)
 
   const list = useMemo(() => {
-    const base =
+    const base = driver !== null ? mediaFor(SPOTTED.find((d) => d.id === driver)!) :
       filter === 'all' ? MEDIA : filter === 'video' ? MEDIA.filter((m) => m.kind === 'video') : MEDIA.filter((m) => m.tags.includes(filter))
     if (!seed) return base
     // deterministic shuffle per seed
     return [...base].sort((a, b) => ((parseInt(a.id.slice(1)) * seed) % 97) - ((parseInt(b.id.slice(1)) * seed) % 97))
-  }, [filter, seed])
+  }, [filter, seed, driver])
 
   const visible = list.slice(0, shown)
 
@@ -117,8 +127,9 @@ export default function Gallery() {
           return (
             <Chip
               key={f.key}
-              active={filter === f.key}
+              active={driver === null && filter === f.key}
               onClick={() => {
+                setDriver(null)
                 setFilter(f.key)
                 setShown(PAGE)
               }}
@@ -127,6 +138,23 @@ export default function Gallery() {
             </Chip>
           )
         })}
+      </div>
+
+      <div className="-mt-3 mb-6 flex flex-wrap items-center gap-2">
+        <span className="mr-1 font-mono text-[10px] tracking-widest text-muted uppercase">Spot a driver:</span>
+        {SPOTTED.map((d) => (
+          <Chip
+            key={d.id}
+            active={driver === d.id}
+            color={d.color}
+            onClick={() => {
+              setDriver(driver === d.id ? null : d.id)
+              setShown(PAGE)
+            }}
+          >
+            #{d.kart} {d.short} <span className="font-mono text-xs text-muted">{mediaFor(d).length}</span>
+          </Chip>
+        ))}
       </div>
 
       <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">

@@ -69,7 +69,10 @@ export default function Leaderboard({ onPick }: { onPick: (d: Driver) => void })
                 <span className="flex min-w-0 items-center gap-3">
                   <Avatar d={d} size={36} />
                   <span className="min-w-0">
-                    <span className="block truncate font-semibold">{d.name}</span>
+                    <span className="flex items-center gap-2 truncate font-semibold">
+                      <span className="rounded bg-white/90 px-1 font-mono text-[10px] font-bold text-ink">#{d.kart}</span>
+                      {d.name}
+                    </span>
                     <span className="hidden truncate text-xs text-muted md:block">“{d.nickname}”</span>
                     <span className="block font-mono text-xs text-muted md:hidden">
                       best {fmt(d.best)} · avg {fmt(d.avg)}

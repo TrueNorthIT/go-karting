@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useSyncExternalStore } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import type { MediaItem } from '../lib/media'
+import { driversIn, type MediaItem } from '../lib/media'
 
 // A tiny global store so any strip, grid or card can open the viewer.
 let state: { list: MediaItem[]; index: number } | null = null
@@ -91,6 +91,16 @@ export default function MediaViewer() {
             </motion.div>
           </AnimatePresence>
           <p className="mt-4 max-w-xl text-center text-lg">{item.caption}</p>
+          {driversIn(item).length > 0 && (
+            <div className="mt-1 mb-1 flex gap-2">
+              {driversIn(item).map((d) => (
+                <span key={d.id} className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-sm">
+                  <span className="rounded bg-white px-1 font-mono text-[11px] font-bold text-ink">#{d.kart}</span>
+                  {d.name}
+                </span>
+              ))}
+            </div>
+          )}
           <p className="font-mono text-xs text-muted">
             {s.index + 1} / {s.list.length}
             {item.kind === 'video' ? ` · 🎬 ${item.duration}s` : ''} · swipe or ← →

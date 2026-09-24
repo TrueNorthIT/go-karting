@@ -3,6 +3,8 @@ import { useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { AWARDS, DRIVERS, FASTEST, fmt, fmtDelta, type Driver } from '../lib/data'
 import { Avatar } from './ui'
+import { mediaFor } from '../lib/media'
+import { openMedia } from './MediaViewer'
 import { FLAG_STATS, PLANS } from '../lib/flags'
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -99,8 +101,14 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                       <Avatar d={driver} size={84} ring />
                     </motion.div>
                     <div>
-                      <div className="font-mono text-xs tracking-widest text-muted uppercase">
-                        Finished P{driver.position} of {DRIVERS.length}
+                      <div className="flex flex-wrap items-center gap-2 font-mono text-xs tracking-widest text-muted uppercase">
+                        <span className="rounded bg-white px-1.5 font-display text-sm tracking-normal text-ink">#{driver.kart}</span>
+                        Started P{driver.grid} → finished P{driver.position}
+                        {driver.grid !== driver.position && (
+                          <span className={driver.grid > driver.position ? 'text-[#2fd98a]' : 'text-race'}>
+                            {driver.grid > driver.position ? `▲${driver.grid - driver.position}` : `▼${driver.position - driver.grid}`}
+                          </span>
+                        )}
                       </div>
                       <h3 className="font-display text-3xl uppercase sm:text-4xl">{driver.name}</h3>
                       <p className="mt-1 font-mono text-sm" style={{ color: driver.color }}>
@@ -149,6 +157,32 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                     value={`${fmtDelta(driver.secondHalfAvg - driver.firstHalfAvg)}s`}
                     sub={driver.secondHalfAvg < driver.firstHalfAvg ? 'got quicker' : 'faded'}
                   />
+                </div>
+
+                <div className="px-6 pt-6">
+                  <h4 className="mb-3 font-display text-lg uppercase">📸 Spotted on camera</h4>
+                  {mediaFor(driver).length ? (
+                    <div className="scrollbar-thin flex gap-2 overflow-x-auto pb-2">
+                      {mediaFor(driver).map((m, k, all) => (
+                        <motion.button
+                          key={m.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 + k * 0.03 }}
+                          whileHover={{ scale: 1.06 }}
+                          onClick={() => openMedia(all, k)}
+                          className="h-28 shrink-0 overflow-hidden rounded-xl ring-1 ring-white/10"
+                          style={{ aspectRatio: `${m.w} / ${m.h}` }}
+                        >
+                          <img src={m.thumb} alt={m.caption} loading="lazy" className="h-full w-full object-cover" />
+                        </motion.button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted">
+                      No clear shots of kart #{driver.kart}. Too quick for the camera, obviously. 😉
+                    </p>
+                  )}
                 </div>
 
                 <div className="p-6">

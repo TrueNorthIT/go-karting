@@ -75,6 +75,8 @@ export interface Driver {
   retired?: string
   nickname: string
   story: string
+  kart: number
+  grid: number
 }
 
 // A nickname and the story of each driver's night, written from what their laps show.
@@ -141,6 +143,25 @@ const STORIES: Record<string, [string, string]> = {
   ],
 }
 
+// From the photo of the venue's timing screen before the start: kart number and grid slot.
+const GRID: Record<string, [kart: number, grid: number]> = {
+  'Christian Waters': [2, 1],
+  'Joseph Pitts': [14, 2],
+  'Alex Radice': [16, 3],
+  'Alex Northam': [1, 4],
+  'Yo Steve': [9, 5],
+  'Richard Kelsey': [19, 6],
+  'Joshua Cottrell': [8, 7],
+  Tasha: [7, 8],
+  Sam: [6, 9],
+  'Kade Hennessy': [18, 10],
+  'Elliot Haigh': [12, 11],
+  'Muhamad Hewa Rahim': [3, 12],
+  'Hollie Pitts': [20, 13],
+  bogdan: [15, 14],
+  'Abbie Heelas': [11, 15],
+}
+
 const RETIRED: Record<string, string> = {
   'Alex Radice': 'Hurt his back and stepped out after 8 laps. Get well soon, Alex 🤕',
 }
@@ -186,8 +207,12 @@ export const DRIVERS: Driver[] = RAW.map(([name, times], i) => {
     retired: RETIRED[name],
     nickname: STORIES[name]?.[0] ?? '',
     story: STORIES[name]?.[1] ?? '',
+    kart: GRID[name][0],
+    grid: GRID[name][1],
   }
 })
+
+export const byKart = (k: number) => DRIVERS.find((d) => d.kart === k)
 
 export const MAX_LAPS = Math.max(...DRIVERS.map((d) => d.laps.length))
 export const FASTEST = DRIVERS.reduce((a, b) => (b.best < a.best ? b : a))
@@ -214,6 +239,7 @@ export const AWARDS: Award[] = (() => {
   const improver = by(DRIVERS, (d) => d.secondHalfAvg - d.firstHalfAvg)
   const clean = by(DRIVERS, (d) => -d.cleanLaps)
   const quickstart = by(DRIVERS, (d) => d.laps[0])
+  const climber = by(DRIVERS, (d) => d.position - d.grid)
   return [
     { emoji: '🚀', title: 'The Rocket', blurb: 'Fastest lap of the night. Absolute send.', driver: rocket, stat: fmt(rocket.best) },
     { emoji: '⏱️', title: 'The Metronome', blurb: 'Most consistent lap times. Robot-like.', driver: metronome, stat: `σ ${metronome.stdDev.toFixed(1)}s` },
@@ -223,6 +249,6 @@ export const AWARDS: Award[] = (() => {
     { emoji: '📈', title: 'Second Wind', blurb: 'Biggest improvement from first half to second.', driver: improver, stat: `${Math.abs(improver.secondHalfAvg - improver.firstHalfAvg).toFixed(1)}s quicker` },
     { emoji: '🧼', title: 'Squeaky Clean', blurb: 'Most laps within 10% of their own best.', driver: clean, stat: `${clean.cleanLaps} laps` },
     { emoji: '🤕', title: 'Get Well Soon', blurb: 'Hurt his back and bravely stepped out. Legend.', driver: DRIVERS.find((d) => d.retired) ?? quickstart, stat: `${(DRIVERS.find((d) => d.retired) ?? quickstart).laps.length} laps` },
-    { emoji: '🏁', title: 'Hole Shot', blurb: 'Quickest opening lap off the line.', driver: quickstart, stat: fmt(quickstart.laps[0]) },
+    { emoji: '🧗', title: 'Grid Climber', blurb: 'Most places gained from the starting grid to the flag.', driver: climber, stat: `P${climber.grid} → P${climber.position}` },
   ]
 })()

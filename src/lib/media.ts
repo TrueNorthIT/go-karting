@@ -2,6 +2,7 @@
 // from the raw phone media in ./media; this file adds tags and captions on top.
 
 import raw from './media.json'
+import { DRIVERS, byKart, type Driver } from './data'
 
 export type Tag = 'track' | 'carnage' | 'wave' | 'podium' | 'paddock' | 'screen' | 'overview'
 
@@ -15,6 +16,19 @@ export interface MediaItem {
   duration?: number
   tags: Tag[]
   caption: string
+  /** kart numbers readable in the shot */
+  karts: number[]
+}
+
+// Kart numbers read off each photo (only where the number is clearly visible).
+const KARTS: Record<string, number[]> = {
+  m009: [11], m011: [11, 12], m014: [11, 12], m016: [11, 12], m017: [11, 12],
+  m025: [2, 12], m029: [1], m031: [6], m033: [11, 12], m034: [6], m035: [11, 12],
+  m037: [11, 12], m039: [11, 12], m040: [11, 12], m042: [11, 12], m044: [11, 12],
+  m047: [2, 12], m049: [2, 12], m051: [2], m053: [11, 12], m055: [11, 12],
+  m060: [6], m061: [6], m064: [11], m067: [11], m073: [11, 12], m075: [11, 12],
+  m078: [11, 12], m083: [11, 12], m085: [11, 12], m086: [11, 12], m087: [11, 12],
+  m090: [11, 12], m096: [11], m097: [2, 12], m100: [11, 12], m101: [11, 12],
 }
 
 const CURATED: Record<string, [Tag[], string]> = {
@@ -31,15 +45,15 @@ const CURATED: Record<string, [Tag[], string]> = {
   m018: [['carnage'], 'Karts that are definitely not meant to be touching.'],
   m022: [['carnage'], 'A tangle, a marshal, and another red flag incoming.'],
   m023: [['screen'], 'The timing screen: where the truth lives.'],
-  m025: [['carnage'], 'Marshal to the rescue. Again.'],
-  m029: [['carnage'], 'Parked facing the tyre wall. Bold choice.'],
+  m025: [['carnage'], 'Karts 2 and 12, parked in the tyre wall together. Marshal to the rescue.'],
+  m029: [['carnage'], 'Kart 1, facing the tyre wall. Bold choice.'],
   m030: [['carnage'], 'Tyre wall 1, kart 0.'],
   m032: [['track', 'overview'], 'The serpentine, from above.'],
-  m016: [['wave'], 'Waving mid-race. Race control has noted this.'],
-  m033: [['wave'], 'A wave for the camera. Hands on the wheel, please.'],
+  m016: [['wave'], 'Kart 11 waving mid-race. Race control has noted this.'],
+  m033: [['wave'], 'Kart 11 with a wave for the camera. Hands on the wheel, please.'],
   m039: [['wave'], 'Another wave. It became a thing.'],
   m044: [['wave'], 'Is this a race or a parade?'],
-  m047: [['carnage'], 'The orange hi-vis crew earned their money tonight.'],
+  m047: [['carnage'], 'Karts 2 and 12 again. The hi-vis crew earned their money tonight.'],
   m049: [['carnage'], 'Tyre-wall extraction, part three.'],
   m051: [['carnage'], 'Pit crew, but make it a rescue mission.'],
   m058: [['screen'], 'Lap times loading… and loading…'],
@@ -78,15 +92,19 @@ const TRACK_LINES = [
   'Concentration face: engaged.',
 ]
 
-export const MEDIA: MediaItem[] = (raw as Omit<MediaItem, 'tags' | 'caption'>[]).map((m, i) => {
+export const MEDIA: MediaItem[] = (raw as Omit<MediaItem, 'tags' | 'caption' | 'karts'>[]).map((m, i) => {
   const c = CURATED[m.id]
-  return { ...m, tags: c?.[0] ?? ['track'], caption: c?.[1] ?? TRACK_LINES[i % TRACK_LINES.length] }
+  return { ...m, tags: c?.[0] ?? ['track'], caption: c?.[1] ?? TRACK_LINES[i % TRACK_LINES.length], karts: KARTS[m.id] ?? [] }
 })
 
 export const byId = (id: string) => MEDIA.find((m) => m.id === id)!
 export const PHOTOS = MEDIA.filter((m) => m.kind === 'photo')
 export const VIDEOS = MEDIA.filter((m) => m.kind === 'video')
 export const withTag = (t: Tag) => MEDIA.filter((m) => m.tags.includes(t))
+
+export const driversIn = (m: MediaItem): Driver[] => m.karts.map(byKart).filter((d): d is Driver => !!d)
+export const mediaFor = (d: Driver) => MEDIA.filter((m) => m.karts.includes(d.kart))
+export const SPOTTED = DRIVERS.filter((d) => mediaFor(d).length > 0)
 
 export const HERO_VIDEO = byId('m104')
 export const SQUAD = byId('m001')

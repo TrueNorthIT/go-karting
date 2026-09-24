@@ -669,6 +669,7 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
                 >
                   <span className="w-5 text-right font-mono text-xs text-muted">{i + 1}</span>
                   <span className="h-5 w-1 rounded-full" style={{ background: s.d.color }} />
+                  <span className="w-6 font-mono text-[10px] text-muted">#{s.d.kart}</span>
                   <span className="flex-1 truncate">{s.d.name}</span>
                   <span className={`rounded px-1.5 font-mono text-[10px] tabular ${badge.c}`}>{badge.t}</span>
                   <span className="w-14 text-right font-mono text-xs tabular">{s.lastLap ? fmt(s.lastLap) : '—'}</span>
