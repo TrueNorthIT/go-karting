@@ -1,27 +1,39 @@
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'motion/react'
-import { useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { GALLERY, type Photo } from '../lib/photos'
-import { Section } from './ui'
+import { useMemo, useRef, useState } from 'react'
+import { Play, Shuffle } from 'lucide-react'
+import { MEDIA, type MediaItem, type Tag } from '../lib/media'
+import { openMedia } from './MediaViewer'
+import { Chip, Section } from './ui'
 
-const TILTS = [-3, 2, -1.5, 3, -2, 1.5, -2.5, 2]
+const FILTERS: { key: 'all' | 'video' | Tag; label: string }[] = [
+  { key: 'all', label: 'Everything' },
+  { key: 'track', label: '🏎️ On track' },
+  { key: 'video', label: '🎬 Videos' },
+  { key: 'carnage', label: '💥 Carnage' },
+  { key: 'wave', label: '👋 The wavers' },
+  { key: 'overview', label: '🦅 Bird’s eye' },
+  { key: 'podium', label: '🏆 Podium' },
+  { key: 'paddock', label: '😂 Paddock' },
+  { key: 'screen', label: '📺 Timing screen' },
+]
 
-function TiltCard({ p, i, onOpen }: { p: Photo; i: number; onOpen: () => void }) {
+const PAGE = 36
+
+function Tile({ m, i, onOpen }: { m: MediaItem; i: number; onOpen: () => void }) {
   const mx = useMotionValue(0.5)
   const my = useMotionValue(0.5)
-  const rx = useSpring(useTransform(my, [0, 1], [10, -10]), { stiffness: 200, damping: 20 })
-  const ry = useSpring(useTransform(mx, [0, 1], [-12, 12]), { stiffness: 200, damping: 20 })
-  const glareX = useTransform(mx, (v) => `${v * 100}%`)
-  const glareY = useTransform(my, (v) => `${v * 100}%`)
-  const glare = useTransform([glareX, glareY], ([x, y]) => `radial-gradient(circle at ${x} ${y}, #ffffff40, transparent 50%)`)
+  const rx = useSpring(useTransform(my, [0, 1], [8, -8]), { stiffness: 200, damping: 20 })
+  const ry = useSpring(useTransform(mx, [0, 1], [-10, 10]), { stiffness: 200, damping: 20 })
+  const vid = useRef<HTMLVideoElement>(null)
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 80, rotate: TILTS[i % TILTS.length] * 3 }}
-      whileInView={{ opacity: 1, y: 0, rotate: TILTS[i % TILTS.length] }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ type: 'spring', stiffness: 90, damping: 14, delay: (i % 4) * 0.08 }}
-      className="mb-5 break-inside-avoid [perspective:900px]"
+      layout
+      initial={{ opacity: 0, y: 60, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      transition={{ type: 'spring', stiffness: 120, damping: 16, delay: (i % 12) * 0.03 }}
+      className="mb-3 break-inside-avoid [perspective:900px]"
     >
       <motion.button
         onClick={onOpen}
@@ -30,116 +42,113 @@ function TiltCard({ p, i, onOpen }: { p: Photo; i: number; onOpen: () => void })
           mx.set((e.clientX - r.left) / r.width)
           my.set((e.clientY - r.top) / r.height)
         }}
+        onPointerEnter={() => void vid.current?.play().catch(() => {})}
         onPointerLeave={() => {
           mx.set(0.5)
           my.set(0.5)
+          vid.current?.pause()
         }}
         style={{ rotateX: rx, rotateY: ry }}
-        whileHover={{ scale: 1.04, rotate: 0, zIndex: 10 }}
-        className="group relative block w-full rounded-2xl bg-white p-2.5 pb-12 text-left shadow-[0_20px_60px_-15px_#000] [transform-style:preserve-3d]"
+        whileHover={{ scale: 1.04, zIndex: 10 }}
+        className="group relative block w-full overflow-hidden rounded-2xl bg-panel text-left shadow-[0_20px_50px_-20px_#000]"
       >
-        <img
-          src={p.src}
-          alt={p.alt}
-          loading="lazy"
-          className="w-full rounded-lg object-cover"
-          style={{ aspectRatio: p.ratio }}
-        />
-        <motion.div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity group-hover:opacity-100" style={{ background: glare }} />
-        <div className="absolute inset-x-3 bottom-3 truncate font-[cursive] text-base text-ink/80 italic">{p.caption}</div>
+        {m.kind === 'video' ? (
+          <video
+            ref={vid}
+            src={m.src}
+            poster={m.thumb}
+            muted
+            loop
+            playsInline
+            preload="none"
+            className="w-full object-cover"
+            style={{ aspectRatio: `${m.w} / ${m.h}` }}
+          />
+        ) : (
+          <img src={m.thumb} alt={m.caption} loading="lazy" className="w-full object-cover" style={{ aspectRatio: `${m.w} / ${m.h}` }} />
+        )}
+        {m.kind === 'video' && (
+          <span className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-black/70 px-2 py-0.5 font-mono text-[10px]">
+            <Play size={10} fill="currentColor" /> {m.duration}s
+          </span>
+        )}
+        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/90 to-transparent p-3 pt-8 text-sm transition-transform duration-300 group-hover:translate-y-0">
+          {m.caption}
+        </div>
       </motion.button>
     </motion.div>
   )
 }
 
-function Lightbox({ index, onClose, onNav }: { index: number | null; onClose: () => void; onNav: (d: number) => void }) {
-  useEffect(() => {
-    if (index === null) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (e.key === 'ArrowRight') onNav(1)
-      if (e.key === 'ArrowLeft') onNav(-1)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [index, onClose, onNav])
-
-  const p = index !== null ? GALLERY[index] : null
-  return (
-    <AnimatePresence>
-      {p && index !== null && (
-        <motion.div
-          className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/90 p-4 backdrop-blur-md"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={index}
-              src={p.src}
-              alt={p.alt}
-              className="max-h-[80vh] max-w-full cursor-grab rounded-2xl shadow-2xl active:cursor-grabbing"
-              initial={{ opacity: 0, scale: 0.85, rotate: -3 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              exit={{ opacity: 0, scale: 0.9, rotate: 3 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 22 }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.6}
-              onDragEnd={(_, info) => {
-                if (info.offset.x < -80) onNav(1)
-                else if (info.offset.x > 80) onNav(-1)
-              }}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </AnimatePresence>
-          <p className="mt-4 text-center text-lg">{p.caption}</p>
-          <p className="font-mono text-xs text-muted">
-            {index + 1} / {GALLERY.length} · swipe or ← →
-          </p>
-          <button onClick={onClose} className="absolute top-4 right-4 grid h-11 w-11 place-items-center rounded-full bg-white/10 hover:bg-white/20" aria-label="Close">
-            <X />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onNav(-1)
-            }}
-            className="absolute top-1/2 left-3 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 hover:bg-white/20 sm:grid"
-            aria-label="Previous photo"
-          >
-            <ChevronLeft />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onNav(1)
-            }}
-            className="absolute top-1/2 right-3 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 hover:bg-white/20 sm:grid"
-            aria-label="Next photo"
-          >
-            <ChevronRight />
-          </button>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  )
-}
-
 export default function Gallery() {
-  const [open, setOpen] = useState<number | null>(null)
-  const nav = (d: number) => setOpen((i) => (i === null ? i : (i + d + GALLERY.length) % GALLERY.length))
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]['key']>('all')
+  const [shown, setShown] = useState(PAGE)
+  const [seed, setSeed] = useState(0)
+
+  const list = useMemo(() => {
+    const base =
+      filter === 'all' ? MEDIA : filter === 'video' ? MEDIA.filter((m) => m.kind === 'video') : MEDIA.filter((m) => m.tags.includes(filter))
+    if (!seed) return base
+    // deterministic shuffle per seed
+    return [...base].sort((a, b) => ((parseInt(a.id.slice(1)) * seed) % 97) - ((parseInt(b.id.slice(1)) * seed) % 97))
+  }, [filter, seed])
+
+  const visible = list.slice(0, shown)
 
   return (
-    <Section id="paddock" kicker="Evidence from the night" title="The Paddock">
-      <div className="columns-1 gap-5 sm:columns-2 lg:columns-3">
-        {GALLERY.map((p, i) => (
-          <TiltCard key={p.src} p={p} i={i} onOpen={() => setOpen(i)} />
-        ))}
+    <Section
+      id="paddock"
+      kicker={`${MEDIA.length} photos & videos from the night`}
+      title="The Paddock"
+      aside={
+        <motion.button
+          whileTap={{ scale: 0.9, rotate: 180 }}
+          onClick={() => setSeed((s) => s + 7)}
+          className="flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm hover:border-white/30"
+        >
+          <Shuffle size={16} /> Shuffle
+        </motion.button>
+      }
+    >
+      <div className="mb-6 flex flex-wrap gap-2">
+        {FILTERS.map((f) => {
+          const count =
+            f.key === 'all' ? MEDIA.length : f.key === 'video' ? MEDIA.filter((m) => m.kind === 'video').length : MEDIA.filter((m) => m.tags.includes(f.key as Tag)).length
+          return (
+            <Chip
+              key={f.key}
+              active={filter === f.key}
+              onClick={() => {
+                setFilter(f.key)
+                setShown(PAGE)
+              }}
+            >
+              {f.label} <span className="font-mono text-xs text-muted">{count}</span>
+            </Chip>
+          )
+        })}
       </div>
-      <Lightbox index={open} onClose={() => setOpen(null)} onNav={nav} />
+
+      <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
+        <AnimatePresence mode="popLayout">
+          {visible.map((m, i) => (
+            <Tile key={m.id} m={m} i={i} onOpen={() => openMedia(list, i)} />
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {shown < list.length && (
+        <div className="mt-8 flex justify-center">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShown((s) => s + PAGE)}
+            className="rounded-full bg-race px-6 py-3 font-display text-lg uppercase shadow-[0_0_30px_#ff2a3b66]"
+          >
+            Load another {Math.min(PAGE, list.length - shown)} 🏁
+          </motion.button>
+        </div>
+      )}
     </Section>
   )
 }

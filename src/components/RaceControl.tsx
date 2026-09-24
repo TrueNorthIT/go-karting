@@ -2,6 +2,8 @@ import { motion } from 'motion/react'
 import { DRIVERS, FASTEST, RACE_DURATION, fmt, type Driver } from '../lib/data'
 import { BLACK_FLAGS, FLAGS, FLAG_STATS, RED_FLAGS, TIME_UNDER_RED } from '../lib/flags'
 import { Avatar, CountUp, Section } from './ui'
+import { CARNAGE } from '../lib/media'
+import { openMedia } from './MediaViewer'
 
 const VERDICTS = [
   ['Fastest lap', `${FASTEST.short} (${fmt(FASTEST.best)})`],
@@ -207,6 +209,29 @@ export default function RaceControl({ onPick }: { onPick: (d: Driver) => void })
           <Wanted key={d.id} d={d} i={i} onPick={onPick} />
         ))}
       </div>
+      {/* photographic evidence */}
+      <h3 className="mt-14 mb-2 font-display text-2xl uppercase sm:text-3xl">Carnage cam 📸</h3>
+      <p className="mb-6 text-sm text-muted">Exhibit A through {String.fromCharCode(64 + CARNAGE.length)}: why the red flag kept coming out.</p>
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+        {CARNAGE.map((m, i) => (
+          <motion.button
+            key={m.id}
+            onClick={() => openMedia(CARNAGE, i)}
+            initial={{ opacity: 0, scale: 0.6, rotate: i % 2 ? 6 : -6 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: i % 2 ? 1.5 : -1.5 }}
+            whileHover={{ scale: 1.08, rotate: 0, zIndex: 10 }}
+            viewport={{ once: true }}
+            transition={{ type: 'spring', stiffness: 160, damping: 14, delay: i * 0.05 }}
+            className="relative aspect-[3/4] overflow-hidden rounded-xl ring-2 ring-race/40"
+          >
+            <img src={m.thumb} alt={m.caption} loading="lazy" className="h-full w-full object-cover" />
+            <span className="absolute top-1.5 left-1.5 rounded bg-race px-1.5 font-mono text-[10px] font-bold">
+              {m.kind === 'video' ? '▶ ' : ''}EXHIBIT {String.fromCharCode(65 + i)}
+            </span>
+          </motion.button>
+        ))}
+      </div>
+
       <p className="mt-6 text-xs text-muted">
         The timing sheet doesn't record flags, so these are reconstructed. Red flags are the five moments almost the whole field
         slowed at once; pit visits are laps still way off the pace once red-flag time is removed (black-flag chats, plus the

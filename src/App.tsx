@@ -3,6 +3,11 @@ import { useCallback, useEffect, useState } from 'react'
 import Awards from './components/Awards'
 import DriverDrawer from './components/DriverDrawer'
 import Gallery from './components/Gallery'
+import MediaViewer from './components/MediaViewer'
+import MovieNight from './components/MovieNight'
+import PhotoStrip from './components/PhotoStrip'
+import TracksideTV from './components/TracksideTV'
+import { MEDIA, withTag } from './lib/media'
 import HeadToHead from './components/HeadToHead'
 import Heatmap from './components/Heatmap'
 import Hero from './components/Hero'
@@ -22,6 +27,7 @@ const NAV = [
   ['laps', 'Pace'],
   ['heatmap', 'Heat'],
   ['h2h', 'H2H'],
+  ['tv', 'TV'],
   ['awards', 'Awards'],
   ['paddock', 'Pics'],
 ] as const
@@ -106,12 +112,15 @@ export default function App() {
       <Ticker />
       <main>
         <Podium onPick={pick} />
+        <PhotoStrip items={MEDIA.filter((m) => m.tags.includes('track')).slice(0, 36)} />
         <RaceReplay onPick={pick} />
         <RaceControl onPick={pick} />
         <Leaderboard onPick={pick} />
         <LapChart />
         <Heatmap onPick={pick} />
+        <PhotoStrip items={[...withTag('wave'), ...withTag('overview'), ...MEDIA.filter((m) => m.tags.includes('track')).slice(36)]} tilt={2} />
         <HeadToHead />
+        <TracksideTV />
         <Awards onPick={pick} />
         <Gallery />
       </main>
@@ -128,6 +137,8 @@ export default function App() {
 
       <DriverDrawer driver={picked} onClose={close} onPick={pick} />
       <RaceRadio />
+      <MediaViewer />
+      <MovieNight />
     </div>
   )
 }

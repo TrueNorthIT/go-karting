@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { DRIVERS, FASTEST, RACE, SLOWEST_LAP, TOTAL_LAPS, fmt } from '../lib/data'
 import { Avatar, CountUp } from './ui'
-import { PHOTOS } from '../lib/photos'
+import { HERO_VIDEO, MEDIA, SQUAD } from '../lib/media'
+import { startMovieNight } from './MovieNight'
+import { Clapperboard } from 'lucide-react'
 
 function StartLights({ onDone }: { onDone: () => void }) {
   const [lit, setLit] = useState(0)
@@ -80,7 +82,7 @@ export default function Hero() {
       <header className="relative flex min-h-[100svh] items-center overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: photoY, scale: photoScale }}>
           <motion.img
-            src={PHOTOS.squad.src}
+            src={SQUAD.src}
             alt=""
             className="h-full w-full object-cover object-[50%_60%] grayscale"
             initial={{ opacity: 0, scale: 1.2 }}
@@ -185,6 +187,47 @@ export default function Hero() {
               <span className="text-white">{podium[0].name}</span> takes the win ahead of {podium[1].short} &{' '}
               {podium[2].short}
             </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={intro ? {} : { opacity: 1, y: 0 }}
+            transition={{ delay: 1.6 }}
+            className="mt-8 flex flex-wrap gap-3"
+          >
+            <motion.button
+              whileHover={{ scale: 1.05, rotate: -1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={startMovieNight}
+              className="flex items-center gap-2 rounded-full bg-race px-5 py-3 font-display text-lg uppercase shadow-[0_0_40px_#ff2a3b88]"
+            >
+              <Clapperboard size={20} /> Movie Night
+            </motion.button>
+            <a
+              href="#paddock"
+              className="flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-5 py-3 text-sm backdrop-blur hover:border-white/50"
+            >
+              📸 {MEDIA.length} photos & videos
+            </a>
+          </motion.div>
+        </motion.div>
+
+        {/* phone playing the overhead clip */}
+        <motion.div
+          className="pointer-events-none absolute top-1/2 right-[6%] hidden -translate-y-1/2 lg:block"
+          initial={{ opacity: 0, x: 200, rotate: 25 }}
+          animate={intro ? {} : { opacity: 1, x: 0, rotate: 8 }}
+          transition={{ type: 'spring', stiffness: 60, damping: 14, delay: 0.8 }}
+          style={{ y }}
+        >
+          <motion.div
+            animate={{ rotate: [8, 5, 8], y: [0, -12, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            className="relative h-[520px] w-[270px] overflow-hidden rounded-[2.6rem] border-[8px] border-[#15151d] bg-black shadow-[0_40px_120px_-20px_#ff2a3b66]"
+          >
+            <video src={HERO_VIDEO.src} poster={HERO_VIDEO.thumb} autoPlay muted loop playsInline className="h-full w-full object-cover" />
+            <div className="absolute top-2 left-1/2 h-5 w-20 -translate-x-1/2 rounded-full bg-[#15151d]" />
+            <div className="absolute bottom-4 left-3 rounded-full bg-race px-2.5 py-0.5 font-mono text-[10px] font-bold">● REC</div>
           </motion.div>
         </motion.div>
 

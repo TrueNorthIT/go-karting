@@ -1,7 +1,7 @@
 import confetti from 'canvas-confetti'
 import { AnimatePresence, motion, useInView } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
-import { PODIUM_PHOTOS } from '../lib/photos'
+import { PODIUM_SET as PODIUM_PHOTOS } from '../lib/media'
 import { Crown } from 'lucide-react'
 import { DRIVERS, fmt, type Driver } from '../lib/data'
 import { Avatar, Section } from './ui'
@@ -133,9 +133,9 @@ function RealPodium() {
           <motion.img
             key={p.src}
             src={p.src}
-            alt={p.alt}
+            alt={p.caption}
             className="absolute inset-0 h-full w-full"
-            style={{ objectFit: p.ratio < 1 ? 'contain' : 'cover' }}
+            style={{ objectFit: p.w < p.h ? 'contain' : 'cover' }}
             initial={{ opacity: 0, scale: 1.15, filter: 'blur(10px)' }}
             animate={{ opacity: 1, scale: 1.02, filter: 'blur(0px)' }}
             exit={{ opacity: 0, scale: 0.98 }}
@@ -173,7 +173,7 @@ function RealPodium() {
             aria-label={`Show photo ${k + 1}`}
             className={`h-16 flex-1 overflow-hidden rounded-xl border-2 transition-all ${k === i ? 'border-race opacity-100' : 'border-transparent opacity-40 hover:opacity-80'}`}
           >
-            <img src={ph.src} alt="" className="h-full w-full object-cover" loading="lazy" />
+            <img src={ph.thumb} alt="" className="h-full w-full object-cover" loading="lazy" />
           </button>
         ))}
       </div>
