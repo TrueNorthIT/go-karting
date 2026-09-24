@@ -33,6 +33,7 @@ function Wanted({ d, i, onPick }: { d: Driver; i: number; onPick: (d: Driver) =>
         <Avatar d={d} size={64} />
       </div>
       <div className="mt-2 text-center leading-tight font-semibold">{d.name}</div>
+      <div className="text-center font-mono text-[10px] italic">a.k.a. “{d.nickname}”</div>
       <div className="mt-1 font-mono text-xs">
         {s.blackFlags} pit visit{s.blackFlags === 1 ? '' : 's'} · {fmt(s.pitTime, 0)} parked
       </div>

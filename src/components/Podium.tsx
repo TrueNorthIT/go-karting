@@ -74,6 +74,9 @@ export default function Podium({ onPick }: { onPick: (d: Driver) => void }) {
                   <Avatar d={d} size={idx === 0 ? 60 : 48} ring />
                 </div>
                 <div className="mt-3 text-center text-sm leading-tight font-semibold sm:text-lg">{d.name}</div>
+                <div className="text-xs italic" style={{ color: d.color }}>
+                  “{d.nickname}”
+                </div>
                 <div className="font-mono text-xs text-muted">best {fmt(d.best)}</div>
               </motion.div>
               <motion.div

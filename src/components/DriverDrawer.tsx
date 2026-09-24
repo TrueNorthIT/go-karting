@@ -15,17 +15,6 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
   )
 }
 
-function vibe(d: Driver): string {
-  const trend = d.secondHalfAvg - d.firstHalfAvg
-  if (d.retired) return d.retired
-  if (d.id === FASTEST.id) return 'Raw speed merchant. Thought yellow flags were optional, which is where most of his pit trips came from. Race control has his number.'
-  if (d.position === 1) return 'Race winner. Kept it pinned when it mattered.'
-  if (d.chaosLaps >= 5) return 'Chaos enjoyer. Came for the laps, stayed for the drama.'
-  if (trend < -10) return 'Slow starter, strong finisher. Found the groove late.'
-  if (d.stdDev < 20) return 'Smooth operator. Lap after lap after lap.'
-  return 'Solid racer with flashes of real pace.'
-}
-
 export default function DriverDrawer({ driver, onClose, onPick }: {
   driver: Driver | null
   onClose: () => void
@@ -114,7 +103,9 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                         Finished P{driver.position} of {DRIVERS.length}
                       </div>
                       <h3 className="font-display text-3xl uppercase sm:text-4xl">{driver.name}</h3>
-                      <p className="mt-1 text-sm text-white/70">{vibe(driver)}</p>
+                      <p className="mt-1 font-mono text-sm" style={{ color: driver.color }}>
+                        a.k.a. “{driver.nickname}”
+                      </p>
                     </div>
                   </div>
                   {trophies.length > 0 && (
@@ -127,6 +118,17 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                     </div>
                   )}
                 </div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                  className="mx-6 mb-5 rounded-2xl border-l-4 bg-white/[0.04] p-4"
+                  style={{ borderColor: driver.color }}
+                >
+                  <div className="mb-1 font-mono text-[10px] tracking-[0.3em] text-muted uppercase">Their night</div>
+                  <p className="leading-relaxed text-white/85">{driver.story}</p>
+                </motion.div>
 
                 <div className="grid grid-cols-2 gap-3 px-6 sm:grid-cols-3">
                   <Stat label="Best lap" value={fmt(driver.best)} sub={`on lap ${driver.bestLap}`} />

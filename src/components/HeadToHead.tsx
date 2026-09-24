@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Shuffle, Swords } from 'lucide-react'
 import { DRIVERS, fmt, type Driver } from '../lib/data'
 import { Avatar, Section } from './ui'
+import { FLAG_STATS } from '../lib/flags'
 
 function Picker({ value, onChange, other }: { value: Driver; onChange: (d: Driver) => void; other: Driver }) {
   return (
@@ -29,8 +30,26 @@ function Picker({ value, onChange, other }: { value: Driver; onChange: (d: Drive
           </option>
         ))}
       </select>
+      <span className="text-center text-xs italic" style={{ color: value.color }}>
+        “{value.nickname}”
+      </span>
     </div>
   )
+}
+
+function verdict(a: Driver, b: Driver): string {
+  const [fast, slow] = a.best < b.best ? [a, b] : [b, a]
+  const [ahead, behind] = a.position < b.position ? [a, b] : [b, a]
+  const gap = (slow.best - fast.best).toFixed(3)
+  const pits = (d: Driver) => FLAG_STATS[d.id].blackFlags
+  if (fast.id === ahead.id) {
+    return `${fast.short} wins this one outright: quicker by ${gap}s over a lap and ahead at the flag (P${ahead.position} vs P${behind.position}). ${
+      pits(slow) > pits(fast) ? `The pit lane didn't help ${slow.short} either.` : `${slow.short} will want a rematch.`
+    }`
+  }
+  return `Proper argument material. ${fast.short} had the raw pace, ${gap}s quicker on the best lap, but ${ahead.short} finished ahead (P${ahead.position} vs P${behind.position})${
+    pits(fast) > pits(ahead) ? ` while ${fast.short} was busy visiting the pit lane` : ''
+  }. Speed vs staying on track: pick your side.`
 }
 
 export default function HeadToHead() {
@@ -96,6 +115,18 @@ export default function HeadToHead() {
           </div>
           <Picker value={b} onChange={setB} other={a} />
         </div>
+
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={`${a.id}-${b.id}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mx-auto mt-6 max-w-2xl text-center text-white/80"
+          >
+            {verdict(a, b)}
+          </motion.p>
+        </AnimatePresence>
 
         <div className="mt-8 space-y-4">
           {metrics.map((m) => {
