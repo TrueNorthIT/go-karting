@@ -9,12 +9,15 @@ import Hero from './components/Hero'
 import LapChart from './components/LapChart'
 import Leaderboard from './components/Leaderboard'
 import Podium from './components/Podium'
+import RaceControl from './components/RaceControl'
+import RaceRadio from './components/RaceRadio'
 import RaceReplay from './components/RaceReplay'
 import { DRIVERS, FASTEST, RACE, fmt, type Driver } from './lib/data'
 
 const NAV = [
   ['podium', 'Podium'],
   ['replay', 'Replay'],
+  ['control', 'Flags'],
   ['leaderboard', 'Tower'],
   ['laps', 'Pace'],
   ['heatmap', 'Heat'],
@@ -26,7 +29,11 @@ const NAV = [
 function Ticker() {
   const items = [
     `⚡ Fastest lap ${FASTEST.name} ${fmt(FASTEST.best)}`,
-    ...DRIVERS.map((d) => `P${d.position} ${d.name} · best ${fmt(d.best)}`),
+    '🚩 RED FLAG 🚩 RED FLAG 🚩 RED FLAG',
+    ...DRIVERS.slice(0, 5).map((d) => `P${d.position} ${d.name} · best ${fmt(d.best)}`),
+    '⚫ BLACK FLAG · pit lane, now please',
+    ...DRIVERS.slice(5).map((d) => `P${d.position} ${d.name} · best ${fmt(d.best)}`),
+    '🤕 Alex Radice retires, get well soon',
   ]
   return (
     <div className="relative overflow-hidden border-y border-line bg-race py-2 text-sm font-semibold text-white">
@@ -100,6 +107,7 @@ export default function App() {
       <main>
         <Podium onPick={pick} />
         <RaceReplay onPick={pick} />
+        <RaceControl onPick={pick} />
         <Leaderboard onPick={pick} />
         <LapChart />
         <Heatmap onPick={pick} />
@@ -119,6 +127,7 @@ export default function App() {
       </footer>
 
       <DriverDrawer driver={picked} onClose={close} onPick={pick} />
+      <RaceRadio />
     </div>
   )
 }

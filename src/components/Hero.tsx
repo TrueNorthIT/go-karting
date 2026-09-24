@@ -150,8 +150,8 @@ export default function Hero() {
             transition={{ delay: 0.9 }}
             className="mt-6 max-w-xl text-lg text-muted"
           >
-            Fifteen drivers. {TOTAL_LAPS} laps. One 7-minute lap that nobody will ever let Alex forget.
-            Every lap, replayed and dissected.
+            Fifteen drivers. {TOTAL_LAPS} laps. Five red flags. A pit lane busier than the track. Less Formula 1, more
+            Wacky Races: every lap replayed and dissected.
           </motion.p>
 
           <motion.div

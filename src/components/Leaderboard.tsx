@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { ArrowDownUp, Zap } from 'lucide-react'
 import { DRIVERS, FASTEST, fmt, type Driver } from '../lib/data'
 import { Avatar, Chip, Section } from './ui'
+import { FLAG_STATS } from '../lib/flags'
 
 type SortKey = 'position' | 'best' | 'avg' | 'laps' | 'stdDev'
 
@@ -73,6 +74,17 @@ export default function Leaderboard({ onPick }: { onPick: (d: Driver) => void })
                       best {fmt(d.best)} · avg {fmt(d.avg)}
                     </span>
                   </span>
+                  {d.retired && (
+                    <span className="rounded-full bg-[#4fd1c5]/20 px-2 py-0.5 font-mono text-[10px] text-[#4fd1c5]">🤕 RET</span>
+                  )}
+                  {FLAG_STATS[d.id].blackFlags > 0 && (
+                    <span
+                      className="hidden rounded-full bg-white/5 px-2 py-0.5 font-mono text-[10px] text-muted ring-1 ring-white/10 sm:inline"
+                      title="Pit visits"
+                    >
+                      {'⚫'.repeat(FLAG_STATS[d.id].blackFlags)}
+                    </span>
+                  )}
                   {d.id === FASTEST.id && (
                     <span className="flex items-center gap-1 rounded-full bg-[#b34dff]/20 px-2 py-0.5 font-mono text-[10px] text-[#d9a6ff]">
                       <Zap size={10} fill="currentColor" /> FL

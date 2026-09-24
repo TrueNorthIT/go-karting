@@ -4,6 +4,7 @@ import { FastForward, Pause, Play, RotateCcw, Volume2, VolumeX } from 'lucide-re
 import { DRIVERS, RACE_DURATION, fmt, type Driver } from '../lib/data'
 import { BLACK_FLAGS, FLAGS, RED_FLAGS, flagAt, kartAt, type FlagKind, type KartState } from '../lib/flags'
 import { Section } from './ui'
+import { radio } from '../lib/radio'
 
 // Centre line traced from the venue's track map (1482×1061 image space), starting at the
 // start/finish line on the pit straight and running in race direction.
@@ -110,8 +111,7 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
   const [toasts, setToasts] = useState<Toast[]>([])
   const last = useRef(0)
   const prevT = useRef(0)
-  const started = useRef(false)
-  const wrapRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
     if (!pathRef.current) return
@@ -122,18 +122,26 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
     setBridgeAt(probe.getTotalLength())
   }, [])
 
-  // Autoplay the first time the track scrolls into view.
+  // Only run while the track is actually on screen: start when it scrolls into view,
+  // pause when it leaves, resume on return (unless the viewer paused it themselves).
+  const userPaused = useRef(false)
+  const tRef = useRef(0)
+  tRef.current = t
   useEffect(() => {
-    const el = wrapRef.current
+    const el = trackRef.current
     if (!el) return
     const io = new IntersectionObserver(
       ([e]) => {
-        if (e.isIntersecting && !started.current) {
-          started.current = true
-          setPlaying(true)
+        if (e.isIntersecting) {
+          if (!userPaused.current && tRef.current < RACE_DURATION) setPlaying(true)
+          radio.setMood(flagAt(tRef.current).kind)
+        } else {
+          setPlaying(false)
+          // the rest of the site shouldn't be stuck with red-flag music
+          radio.setMood('green')
         }
       },
-      { threshold: 0.4 },
+      { threshold: 0.6 },
     )
     io.observe(el)
     return () => io.disconnect()
@@ -144,7 +152,8 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
     let raf = 0
     last.current = performance.now()
     const tick = (now: number) => {
-      const dt = (now - last.current) / 1000
+      // clamp so a throttled/background tab doesn't teleport the race forward
+      const dt = Math.min((now - last.current) / 1000, 0.1)
       last.current = now
       setT((prev) => {
         const next = Math.min(prev + dt * speed, RACE_DURATION)
@@ -164,6 +173,7 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
   useEffect(() => {
     if (flag.kind !== prevFlag.current) {
       if (sound && playing && flag.kind !== 'green') beep(flag.kind)
+      radio.setMood(flag.kind)
       prevFlag.current = flag.kind
     }
   }, [flag.kind, sound, playing])
@@ -292,6 +302,7 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
     })
 
   const reset = () => {
+    userPaused.current = false
     setT(0)
     prevT.current = 0
     setToasts([])
@@ -324,10 +335,9 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
         </div>
       }
     >
-      <div ref={wrapRef} className="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <motion.div
-          key={flag.kind === 'red' ? `red-${flag.window?.n}` : 'calm'}
-          animate={flag.kind === 'red' ? { x: [0, -10, 9, -6, 4, 0] } : {}}
+          animate={flag.kind === 'red' ? { x: [0, -10, 9, -6, 4, 0] } : { x: 0 }}
           transition={{ duration: 0.45 }}
           className="glass relative overflow-hidden rounded-3xl transition-shadow duration-500"
           style={{
@@ -353,7 +363,7 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
             </div>
           </div>
 
-          <svg viewBox="40 40 1420 960" className="relative w-full" role="img" aria-label="Animated race replay on the real track layout">
+          <svg ref={trackRef} viewBox="40 40 1420 960" className="relative w-full" role="img" aria-label="Animated race replay on the real track layout">
             <defs>
               <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="4" result="b" />
@@ -544,7 +554,11 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
             <div className="flex flex-wrap items-center gap-3">
               <motion.button
                 whileTap={{ scale: 0.9 }}
-                onClick={() => (t >= RACE_DURATION ? reset() : setPlaying((p) => !p))}
+                onClick={() => {
+                  if (t >= RACE_DURATION) return reset()
+                  userPaused.current = playing
+                  setPlaying(!playing)
+                }}
                 className="grid h-10 w-10 place-items-center rounded-full bg-race text-white shadow-[0_0_20px_#ff2a3b88]"
                 aria-label={playing ? 'Pause' : 'Play'}
               >
@@ -590,6 +604,7 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
                   key={f.n}
                   onClick={() => {
                     seek(f.start - 8)
+                    userPaused.current = false
                     setPlaying(true)
                   }}
                   className="rounded-full border border-race/40 px-2.5 py-0.5 font-mono text-[11px] text-race hover:bg-race hover:text-white"

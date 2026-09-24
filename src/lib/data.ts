@@ -155,6 +155,7 @@ export const AWARDS: Award[] = (() => {
     { emoji: '💥', title: 'Agent of Chaos', blurb: 'Most laps over 2 minutes. Pure entertainment.', driver: chaos, stat: `${chaos.chaosLaps} laps` },
     { emoji: '📈', title: 'Second Wind', blurb: 'Biggest improvement from first half to second.', driver: improver, stat: `${Math.abs(improver.secondHalfAvg - improver.firstHalfAvg).toFixed(1)}s quicker` },
     { emoji: '🧼', title: 'Squeaky Clean', blurb: 'Most laps within 10% of their own best.', driver: clean, stat: `${clean.cleanLaps} laps` },
+    { emoji: '🤕', title: 'Get Well Soon', blurb: 'Hurt his back and bravely stepped out. Legend.', driver: DRIVERS.find((d) => d.retired) ?? quickstart, stat: `${(DRIVERS.find((d) => d.retired) ?? quickstart).laps.length} laps` },
     { emoji: '🏁', title: 'Hole Shot', blurb: 'Quickest opening lap off the line.', driver: quickstart, stat: fmt(quickstart.laps[0]) },
   ]
 })()

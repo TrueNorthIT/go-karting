@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { AWARDS, DRIVERS, FASTEST, fmt, fmtDelta, type Driver } from '../lib/data'
 import { Avatar } from './ui'
+import { FLAG_STATS, PLANS } from '../lib/flags'
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -16,7 +17,8 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
 
 function vibe(d: Driver): string {
   const trend = d.secondHalfAvg - d.firstHalfAvg
-  if (d.id === FASTEST.id) return 'Raw speed merchant. When it clicks, nobody touches them.'
+  if (d.retired) return d.retired
+  if (d.id === FASTEST.id) return 'Raw speed merchant. Also overtakes where gaps do not exist. Race control has his number.'
   if (d.position === 1) return 'Race winner. Kept it pinned when it mattered.'
   if (d.chaosLaps >= 5) return 'Chaos enjoyer. Came for the laps, stayed for the drama.'
   if (trend < -10) return 'Slow starter, strong finisher. Found the groove late.'
@@ -138,7 +140,8 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                     sub={driver.id === FASTEST.id ? '⚡ of the night' : FASTEST.short}
                   />
                   <Stat label="Worst lap" value={fmt(driver.worst)} sub={`lap ${driver.worstLap} 😬`} />
-                  <Stat label="Chaos laps" value={`${driver.chaosLaps}`} sub="over 2 minutes" />
+                  <Stat label="Pit visits ⚫" value={`${FLAG_STATS[driver.id].blackFlags}`} sub={`${fmt(FLAG_STATS[driver.id].pitTime, 0)} on the naughty step`} />
+                  <Stat label="Red-flag wait 🚩" value={fmt(FLAG_STATS[driver.id].redTime, 0)} sub="sat waiting" />
                   <Stat
                     label="2nd half"
                     value={`${fmtDelta(driver.secondHalfAvg - driver.firstHalfAvg)}s`}
@@ -151,6 +154,7 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                   <div className="space-y-1.5">
                     {driver.laps.map((l, i) => {
                       const pb = i + 1 === driver.bestLap
+                      const plan = PLANS[driver.id][i]
                       return (
                         <div key={i} className="flex items-center gap-3 font-mono text-xs">
                           <span className="w-6 text-right text-muted">{i + 1}</span>
@@ -166,6 +170,10 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                               <span className="absolute top-0 right-1 leading-5 text-white">off the chart →</span>
                             )}
                           </div>
+                          <span className="w-8 text-center">
+                            {plan.redTime > 20 ? '🚩' : ''}
+                            {plan.pitTime > 0 ? '⚫' : ''}
+                          </span>
                           <span className={`w-16 text-right tabular ${pb ? 'font-bold text-volt' : ''}`}>{fmt(l)}</span>
                         </div>
                       )

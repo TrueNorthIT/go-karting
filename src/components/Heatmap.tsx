@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import { useState } from 'react'
 import { DRIVERS, FASTEST, MAX_LAPS, fmt, type Driver } from '../lib/data'
 import { Chip, Section } from './ui'
+import { PLANS } from '../lib/flags'
 
 type Scale = 'own' | 'field'
 
@@ -66,6 +67,7 @@ export default function Heatmap({ onPick }: { onPick: (d: Driver) => void }) {
                   if (v === undefined) return <td key={i} />
                   const isPB = i + 1 === d.bestLap
                   const isFL = isPB && d.id === FASTEST.id
+                  const plan = PLANS[d.id][i]
                   return (
                     <motion.td
                       key={i}
@@ -87,6 +89,12 @@ export default function Heatmap({ onPick }: { onPick: (d: Driver) => void }) {
                       }}
                     >
                       {v >= 100 ? fmt(v, 0) : v.toFixed(1)}
+                      {plan.redTime > 20 && (
+                        <span className="absolute top-0 right-0 h-0 w-0 border-t-[9px] border-l-[9px] border-t-race border-l-transparent" />
+                      )}
+                      {plan.pitTime > 0 && (
+                        <span className="absolute bottom-0.5 left-0.5 h-2 w-2 rounded-full border border-white/80 bg-black" />
+                      )}
                     </motion.td>
                   )
                 })}
@@ -111,6 +119,12 @@ export default function Heatmap({ onPick }: { onPick: (d: Driver) => void }) {
         <span className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-sm outline-2 outline-[#d9a6ff]" /> fastest lap overall
         </span>
+        <span className="flex items-center gap-2">
+          <span className="h-0 w-0 border-t-[9px] border-l-[9px] border-t-race border-l-transparent" /> red flag on this lap
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full border border-white/80 bg-black" /> pit visit
+        </span>
       </div>
 
       {tip && (
@@ -125,6 +139,12 @@ export default function Heatmap({ onPick }: { onPick: (d: Driver) => void }) {
           <div className="font-mono text-muted">
             {tip.i + 1 === tip.d.bestLap ? 'personal best!' : `+${(tip.d.laps[tip.i] - tip.d.best).toFixed(3)} off PB`}
           </div>
+          {PLANS[tip.d.id][tip.i].redTime > 20 && (
+            <div className="font-mono text-race">🚩 {fmt(PLANS[tip.d.id][tip.i].redTime, 0)} stopped for a red flag</div>
+          )}
+          {PLANS[tip.d.id][tip.i].pitTime > 0 && (
+            <div className="font-mono">⚫ {fmt(PLANS[tip.d.id][tip.i].pitTime, 0)} in the pit lane</div>
+          )}
         </div>
       )}
     </Section>
