@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # original full-size photos (resized copies live in src/assets/photos)
-media/
+/media/
