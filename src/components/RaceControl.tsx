@@ -9,6 +9,7 @@ const VERDICTS = [
   ["Race control's favourite colour", 'Black ⚫'],
   ['Most popular destination', 'The pits'],
   ['Most optimistic activity', 'Overtaking'],
+  ['Most misunderstood flag', 'Yellow (ask Christian) 🟨'],
   ['Actual uninterrupted racing', 'Occasionally available'],
 ]
 
@@ -36,7 +37,7 @@ function Wanted({ d, i, onPick }: { d: Driver; i: number; onPick: (d: Driver) =>
         {s.blackFlags} pit visit{s.blackFlags === 1 ? '' : 's'} · {fmt(s.pitTime, 0)} parked
       </div>
       <div className="mt-2 w-full border-t border-dashed border-[#2b1d0e]/40 pt-2 text-center font-mono text-[10px] uppercase">
-        {d.id === FASTEST.id ? 'Crime: overtaking where no gap existed' : 'Reward: a stern talking-to'}
+        {d.id === FASTEST.id ? 'Crime: overtaking under yellow. Repeatedly.' : 'Reward: a stern talking-to'}
       </div>
     </motion.button>
   )
@@ -79,6 +80,11 @@ export default function RaceControl({ onPick }: { onPick: (d: Driver) => void })
               <b className="text-white">{FASTEST.name}</b> takes the fastest lap of the night with a blistering{' '}
               <b className="font-mono text-[#d9a6ff]">{fmt(FASTEST.best)}</b>. Small problem: he also seemed determined to
               overtake anything that moved, gap or no gap. 😂 Fastest driver? Yes. Quietest night? Absolutely not.
+            </p>
+            <p>
+              The twist: Christian had a <b className="text-[#ffc53d]">creative reading of the yellow flag</b>. Yellow means
+              slow down, no overtaking. Christian took it as more of a suggestion, and passing under yellow is what sent him
+              down the pit lane most of the times he went. 🟨➡️⚫
             </p>
             <p>
               Look down the timing sheet and laps suddenly take two minutes… three… five… even seven. No, the karts didn't

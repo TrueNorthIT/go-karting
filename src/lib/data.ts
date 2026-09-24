@@ -143,7 +143,6 @@ export const AWARDS: Award[] = (() => {
   const metronome = by(DRIVERS, (d) => d.stdDev)
   const scenic = by(DRIVERS, (d) => -d.worst)
   const ironman = by(DRIVERS, (d) => -d.laps.length)
-  const chaos = by(DRIVERS, (d) => -d.chaosLaps)
   const improver = by(DRIVERS, (d) => d.secondHalfAvg - d.firstHalfAvg)
   const clean = by(DRIVERS, (d) => -d.cleanLaps)
   const quickstart = by(DRIVERS, (d) => d.laps[0])
@@ -152,7 +151,7 @@ export const AWARDS: Award[] = (() => {
     { emoji: '⏱️', title: 'The Metronome', blurb: 'Most consistent lap times. Robot-like.', driver: metronome, stat: `σ ${metronome.stdDev.toFixed(1)}s` },
     { emoji: '🌄', title: 'Scenic Route', blurb: 'Longest single lap. Took in the views.', driver: scenic, stat: fmt(scenic.worst) },
     { emoji: '🦾', title: 'Iron Legs', blurb: 'Most laps completed. Never stopped.', driver: ironman, stat: `${ironman.laps.length} laps` },
-    { emoji: '💥', title: 'Agent of Chaos', blurb: 'Most laps over 2 minutes. Pure entertainment.', driver: chaos, stat: `${chaos.chaosLaps} laps` },
+    { emoji: '🟨', title: 'Yellow? What Yellow?', blurb: 'Treated the yellow flag as a suggestion. The pit lane got to know him well.', driver: FASTEST, stat: 'Yellow = go?' },
     { emoji: '📈', title: 'Second Wind', blurb: 'Biggest improvement from first half to second.', driver: improver, stat: `${Math.abs(improver.secondHalfAvg - improver.firstHalfAvg).toFixed(1)}s quicker` },
     { emoji: '🧼', title: 'Squeaky Clean', blurb: 'Most laps within 10% of their own best.', driver: clean, stat: `${clean.cleanLaps} laps` },
     { emoji: '🤕', title: 'Get Well Soon', blurb: 'Hurt his back and bravely stepped out. Legend.', driver: DRIVERS.find((d) => d.retired) ?? quickstart, stat: `${(DRIVERS.find((d) => d.retired) ?? quickstart).laps.length} laps` },

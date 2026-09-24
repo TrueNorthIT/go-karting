@@ -18,7 +18,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
 function vibe(d: Driver): string {
   const trend = d.secondHalfAvg - d.firstHalfAvg
   if (d.retired) return d.retired
-  if (d.id === FASTEST.id) return 'Raw speed merchant. Also overtakes where gaps do not exist. Race control has his number.'
+  if (d.id === FASTEST.id) return 'Raw speed merchant. Thought yellow flags were optional, which is where most of his pit trips came from. Race control has his number.'
   if (d.position === 1) return 'Race winner. Kept it pinned when it mattered.'
   if (d.chaosLaps >= 5) return 'Chaos enjoyer. Came for the laps, stayed for the drama.'
   if (trend < -10) return 'Slow starter, strong finisher. Found the groove late.'

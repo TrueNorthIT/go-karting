@@ -1,7 +1,7 @@
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FastForward, Pause, Play, RotateCcw, Volume2, VolumeX } from 'lucide-react'
-import { DRIVERS, RACE_DURATION, fmt, type Driver } from '../lib/data'
+import { DRIVERS, FASTEST, RACE_DURATION, fmt, type Driver } from '../lib/data'
 import { BLACK_FLAGS, FLAGS, RED_FLAGS, flagAt, kartAt, type FlagKind, type KartState } from '../lib/flags'
 import { Section } from './ui'
 import { radio } from '../lib/radio'
@@ -220,7 +220,11 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
     }
     for (const b of BLACK_FLAGS) {
       if (b.start > from && b.start <= t) {
-        fresh.push({ key: `bf-${b.driver.id}-${b.lap}`, tone: 'black', text: `⚫ ${b.driver.short} → pit lane for a word` })
+        const text =
+          b.driver.id === FASTEST.id
+            ? `⚫ ${b.driver.short} → pits. Yellow means SLOW, Christian 🟨`
+            : `⚫ ${b.driver.short} → pit lane for a word`
+        fresh.push({ key: `bf-${b.driver.id}-${b.lap}`, tone: 'black', text })
       }
     }
     if (fresh.length) {
