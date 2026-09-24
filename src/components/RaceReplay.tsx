@@ -50,10 +50,27 @@ const FLAG_UI: Record<FlagKind, { label: string; sub: string; bg: string; fg: st
   chequered: { label: 'RACE STOPPED', sub: 'that’s enough chaos for one night', bg: '#ffffff', fg: '#07070b' },
 }
 
-// Tiny synthesized race-control beeps (no audio files).
+// Tiny synthesized race-control beeps (no audio files). Browsers only allow audio after
+// the visitor interacts, so one shared context is unlocked on their first click/tap/key.
+let beepCtx: AudioContext | null = null
+function audio() {
+  beepCtx ??= new AudioContext()
+  return beepCtx
+}
+if (typeof window !== 'undefined') {
+  const unlock = () => {
+    void audio().resume()
+    window.removeEventListener('pointerdown', unlock)
+    window.removeEventListener('keydown', unlock)
+  }
+  window.addEventListener('pointerdown', unlock)
+  window.addEventListener('keydown', unlock)
+}
+
 function beep(kind: FlagKind) {
   try {
-    const ctx = new AudioContext()
+    const ctx = audio()
+    if (ctx.state !== 'running') return
     const tones = kind === 'red' ? [880, 660, 880, 660] : kind === 'chequered' ? [523, 659, 784, 1046] : [700]
     tones.forEach((f, i) => {
       const o = ctx.createOscillator()
@@ -66,7 +83,6 @@ function beep(kind: FlagKind) {
       o.start(ctx.currentTime + i * 0.16)
       o.stop(ctx.currentTime + i * 0.16 + 0.16)
     })
-    setTimeout(() => ctx.close(), 1200)
   } catch {
     /* audio not available */
   }
@@ -106,7 +122,7 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
   const [t, setT] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(40)
-  const [sound, setSound] = useState(false)
+  const [sound, setSound] = useState(true)
   const [focus, setFocus] = useState<number | null>(null)
   const [toasts, setToasts] = useState<Toast[]>([])
   const last = useRef(0)
