@@ -88,20 +88,23 @@ export default function RaceControl({ onPick }: { onPick: (d: Driver) => void })
             <p>
               The twist: Christian had a <b className="text-[#ffc53d]">creative reading of the yellow flag</b>. Yellow means
               slow down, no overtaking. Christian took it as more of a suggestion, and passing under yellow is what sent him
-              down the pit lane most of the times he went. 🟨➡️⚫
+              down the pit lane four times on one lap. 🟨➡️⚫
             </p>
             <p>
               Look down the timing sheet and laps suddenly take two minutes… three… five… even seven. No, the karts didn't
-              turn into mobility scooters. <b className="text-race">We had a LOT of red flags.</b> Every time things got
-              flowing, someone had an incident, everything stopped, and another enormous lap time landed on the board. In the
-              end the race was stopped early.
+              turn into mobility scooters. <b className="text-race">We had red flags all the time, {RED_FLAGS.length} of them.</b>{' '}
+              Every time things got flowing, someone had an incident, everything stopped, and another enormous lap time landed
+              on the board. In the end the race was stopped early.
             </p>
             <p>
               Race control wasn't idle either. Bad driving or over-ambitious overtakes earned a{' '}
-              <b className="text-white">⚫ black flag</b> and a trip down the pit lane for a word. For some, the evening went:
+              <b className="text-white">⚫ black flag</b> and a trip down the pit lane for a word. The sting in the tail: the lap
+              checker sits on the race lane next to the pit lane, so a trip down the pits meant missing the timing line and{' '}
+              <b className="text-white">that lap didn't count</b>. Get called in twice before you cross the line again and
+              you've lost two. For some, the evening went:
             </p>
             <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-              {['Race', 'ambitious overtake', '⚫ black flag', 'pit-lane telling-off', 'rejoin', 'plot next overtake'].map((s, i, a) => (
+              {['Race', 'ambitious overtake', '⚫ black flag', 'pit-lane telling-off', 'lap not counted', 'plot next overtake'].map((s, i, a) => (
                 <motion.span
                   key={s}
                   initial={{ opacity: 0, scale: 0.5 }}
@@ -115,6 +118,10 @@ export default function RaceControl({ onPick }: { onPick: (d: Driver) => void })
                 </motion.span>
               ))}
             </div>
+            <p>
+              Meanwhile the podium kept their noses clean: <DriverLink d={DRIVERS[0]} />, <DriverLink d={DRIVERS[1]} /> and{' '}
+              <DriverLink d={DRIVERS[2]} /> never saw the pit lane once. Every lap they drove, they got.
+            </p>
             <p>
               And spare a thought for <DriverLink d={DRIVERS.find((d) => d.retired)!} />, who hurt his back and stepped out after 8 laps. 🤕
             </p>
@@ -186,7 +193,7 @@ export default function RaceControl({ onPick }: { onPick: (d: Driver) => void })
           ))}
           {BLACK_FLAGS.map((b, i) => (
             <motion.div
-              key={`${b.driver.id}-${b.lap}`}
+              key={`${b.driver.id}-${b.start}`}
               className="absolute bottom-1 h-3 w-3 -translate-x-1/2 rounded-full border border-white/70 bg-black"
               style={{ left: `${(b.start / RACE_DURATION) * 100}%` }}
               initial={{ y: 30, opacity: 0 }}
@@ -236,9 +243,10 @@ export default function RaceControl({ onPick }: { onPick: (d: Driver) => void })
       </div>
 
       <p className="mt-6 text-xs text-muted">
-        The timing sheet doesn't record flags, so these are reconstructed. Red flags are the five moments almost the whole field
-        slowed at once; pit visits are laps still way off the pace once red-flag time is removed (black-flag chats, plus the
-        odd spin).
+        The timing sheet doesn't record flags, so these are reconstructed. The podium never pitted, so every second their laps
+        ran over pace was red-flag time; the red flags are fitted to that and checked against everyone else's clean laps. A pit
+        visit skips the timing line, so it shows up as a lap long enough to hold an extra lap of driving (or two, or three)
+        plus the time parked.
       </p>
     </Section>
   )

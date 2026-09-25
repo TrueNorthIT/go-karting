@@ -4,6 +4,7 @@ import { Pause, Play, SkipBack, SkipForward, X } from 'lucide-react'
 import { MEDIA, byId, withTag, type MediaItem } from '../lib/media'
 import { radio, type Mood } from '../lib/radio'
 import { writeHash } from '../lib/url'
+import { RED_FLAGS } from '../lib/flags'
 
 // ---- open/close from anywhere ----
 let open = false
@@ -43,7 +44,7 @@ function buildReel(): Slide[] {
   return [
     { type: 'title', act: 'Act I', title: 'Lights Out', sub: 'Heat 48 · 19:30 · fifteen very confident drivers', mood: 'green' },
     ...media(act1, 'green'),
-    { type: 'title', act: 'Act II', title: 'Red Flag', sub: 'five of them, in fact', mood: 'red' },
+    { type: 'title', act: 'Act II', title: 'Red Flag', sub: `${RED_FLAGS.length} of them, in fact`, mood: 'red' },
     ...media(act2, 'red'),
     { type: 'title', act: 'Act III', title: 'The Wavers', sub: 'hands on the wheel, please', mood: 'yellow' },
     ...media(act3, 'green'),

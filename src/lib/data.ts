@@ -83,43 +83,43 @@ export interface Driver {
 const STORIES: Record<string, [string, string]> = {
   'Joseph Pitts': [
     'The Closer',
-    'Took the win without the fastest lap. A 50.602 on lap 9 was third-best, but Joseph banked 20 laps while others sat parked, with only one short pit-lane chat. Proof, once again, that finishing laps beats setting them.',
+    'Took the win without the fastest lap. A 50.602 on lap 9 was third-best, but Joseph banked 20 laps while others sat parked, and never once got called into the pits. Proof, once again, that finishing laps beats setting them.',
   ],
   'Muhamad Hewa Rahim': [
     'Clean Sheet',
-    'The only driver race control never needed a word with: zero pit visits all night. Muhamad saved the best for nearly last, a 52.420 on lap 19, and got quicker in the second half. P2, fully and deservedly earned.',
+    'One of five drivers race control never needed a word with: zero pit visits all night. Muhamad saved the best for nearly last, a 52.420 on lap 19, and got quicker in the second half. P2, fully and deservedly earned.',
   ],
   'Hollie Pitts': [
     'Pitts Stop',
-    'Two Pitts in the top three, so the surname is clearly quick. Hollie matched Elliot almost lap for lap: best on lap 8, 19 laps each, both finishing with 55-second laps. Fewer pit trips sealed the podium spot.',
+    'Two Pitts in the top three, so the surname is clearly quick. Hollie matched Elliot almost lap for lap: best on lap 8, 19 laps each, both finishing with 55-second laps. Crossing the line five seconds earlier sealed the podium.',
   ],
   'Elliot Haigh': [
     'The Shadow',
-    'Mirror image of Hollie. Elliot’s best came on the same lap 8 and was 0.124s quicker, a 52.675, with the same 19 laps and fast finish. Two quick pit-lane chats were the gap between P4 and a trophy.',
+    'Mirror image of Hollie. Elliot’s best came on the same lap 8 and was 0.124s quicker, a 52.675, with the same 19 laps and fast finish. No pit visits either: just five seconds between P4 and a trophy.',
   ],
   'Christian Waters': [
     'Yellow? What Yellow?',
-    'Fastest lap of the night by miles: 45.614, nearly five seconds clear. Also one 5:22 lap, mostly parked in the pits, after treating a yellow flag as permission to overtake. Served the time, then flew in the second half.',
+    'Fastest lap of the night by miles: 45.614, nearly five seconds clear. Also a 5:22 lap holding four pit visits, after treating a yellow flag as permission to overtake. Served the time, then flew in the second half.',
   ],
   'Joshua Cottrell': [
     'The Metronome',
-    'The most consistent driver on track. Joshua’s best, a 51.941, came early on lap 4, followed by steady, tidy laps and just one short pit visit. Ran in close formation with Yo Steve for most of the race.',
+    'The most consistent driver on track. Joshua’s best, a 51.941, came early on lap 4, followed by steady, tidy laps and not a single pit visit. Ran in close formation with Yo Steve for most of the race.',
   ],
   'Yo Steve': [
     'Lap Four Club',
-    'A 51.537 on lap 4, the fourth-fastest lap of the night, then nose-to-tail with Joshua for most of the race. It all unravelled around laps 13 and 14: two pit visits back to back, including a 3:41 lap.',
+    'A 51.537 on lap 4, the fourth-fastest lap of the night, then nose-to-tail with Joshua for most of the race. It all unravelled on lap 14: a red flag, then a pit visit, and a 3:41 on the board.',
   ],
   'Kade Hennessy': [
     'The Tortoise',
-    'A best of 58.543 won’t top any highlight reel, but check the result: P8, ahead of three drivers with far quicker best laps. Kade kept it on track until one long stop on lap 15. Slow and steady wins.',
+    'A best of 58.543 won’t top any highlight reel, but check the result: P8, ahead of three drivers with far quicker best laps. Kade kept it on track until one pit visit on lap 15. Slow and steady wins.',
   ],
   'Richard Kelsey': [
     'The Sleeper',
-    'Second-fastest lap of the night, a 50.329 on lap 4, quicker than the race winner. Then lap 11 took 4:46, with over two minutes in the pit lane. Without that, Richard was in the podium fight. One to watch.',
+    'Second-fastest lap of the night, a 50.329 on lap 4, quicker than the race winner. Then lap 11 took 4:46: two red flags and a minute in the pits. Without that, Richard was in the podium fight. One to watch.',
   ],
   bogdan: [
     'Frequent Flyer',
-    'Lowercase name, uppercase drama. bogdan collected three pit visits and a 5:30 on lap 9, one of the longest laps of the night. In between, a tidy 56.855 on lap 8 proved the pace was definitely there all along.',
+    'Lowercase name, uppercase drama. bogdan’s lap 9 took 5:30: three red flags and a pit visit, all before he crossed the line. In between, a tidy 56.855 on lap 8 proved the pace was definitely there all along.',
   ],
   Sam: [
     'Early Peak',
@@ -127,15 +127,15 @@ const STORIES: Record<string, [string, string]> = {
   ],
   'Abbie Heelas': [
     'Scenic Tour',
-    'A 1:04.479 on lap 3 promised plenty, then race control got involved: three pit visits, including a 4:56 lap 12 with nearly three minutes in the pit lane. Abbie saw more of the pit wall than almost anyone.',
+    'A 1:04.479 on lap 3 promised plenty, then race control got involved: a pit visit turned lap 12 into a 4:56, with over a minute parked in the pits. Abbie saw more of the pit wall than almost anyone.',
   ],
   'Alex Northam': [
     'Seven Minutes',
-    'Fifth-fastest lap of the night at 51.643, and also the longest: 7:02.105 on lap 13, roughly five minutes of it in the pit lane. Then Alex signed off with a 59.919 last lap, as if nothing had happened.',
+    'Fifth-fastest lap of the night at 51.643, and also the longest: 7:02.105 on lap 13, with three separate pit visits before crossing the line. Then Alex signed off with a 59.919 last lap, as if nothing had happened.',
   ],
   Tasha: [
     'The Comeback',
-    'A rough start: laps of 3:55, 5:57 and 5:13, with over seven minutes spent in the pit lane. Then Tasha found it, getting much quicker and saving the best for the very last lap: 56.524. Signed off on a PB.',
+    'A steady start: laps of 3:55, 5:57 and 5:13, one pit visit in each and plenty of caution. Then Tasha found it, getting much quicker and saving the best for the very last lap: 56.524. Signed off on a PB.',
   ],
   'Alex Radice': [
     'Gone Too Soon',

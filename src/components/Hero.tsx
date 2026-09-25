@@ -7,6 +7,7 @@ import { HERO_VIDEO, MEDIA, SQUAD } from '../lib/media'
 import { startMovieNight } from './MovieNight'
 import { DEEP_LINK } from '../lib/url'
 import { DriverLink } from './DriverLink'
+import { RED_FLAGS } from '../lib/flags'
 import { openDriver } from '../lib/nav'
 import { Clapperboard } from 'lucide-react'
 
@@ -156,7 +157,7 @@ export default function Hero() {
             transition={{ delay: 0.9 }}
             className="mt-6 max-w-xl text-lg text-muted"
           >
-            Fifteen drivers. {TOTAL_LAPS} laps. Five red flags. A pit lane busier than the track. Less Formula 1, more
+            Fifteen drivers. {TOTAL_LAPS} laps. {RED_FLAGS.length} red flags. A pit lane busier than the track. Less Formula 1, more
             Wacky Races: every lap replayed and dissected.
           </motion.p>
 

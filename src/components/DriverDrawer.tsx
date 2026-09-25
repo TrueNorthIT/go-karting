@@ -227,9 +227,9 @@ export default function DriverDrawer({ driver, onClose, onPick }: {
                               <span className="absolute top-0 right-1 leading-5 text-white">off the chart →</span>
                             )}
                           </div>
-                          <span className="w-8 text-center">
-                            {plan.redTime > 20 ? '🚩' : ''}
-                            {plan.pitTime > 0 ? '⚫' : ''}
+                          <span className="w-14 text-center whitespace-nowrap">
+                            {plan.redTime >= 10 ? '🚩' : ''}
+                            {'⚫'.repeat(plan.pits)}
                           </span>
                           <span className={`w-16 text-right tabular ${pb ? 'font-bold text-volt' : ''}`}>{fmt(l)}</span>
                         </div>

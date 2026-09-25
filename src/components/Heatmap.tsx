@@ -91,7 +91,7 @@ export default function Heatmap({ onPick }: { onPick: (d: Driver) => void }) {
                       }}
                     >
                       {v >= 100 ? fmt(v, 0) : v.toFixed(1)}
-                      {plan.redTime > 20 && (
+                      {plan.redTime >= 10 && (
                         <span className="absolute top-0 right-0 h-0 w-0 border-t-[9px] border-l-[9px] border-t-race border-l-transparent" />
                       )}
                       {plan.pitTime > 0 && (
@@ -141,11 +141,14 @@ export default function Heatmap({ onPick }: { onPick: (d: Driver) => void }) {
           <div className="font-mono text-muted">
             {tip.i + 1 === tip.d.bestLap ? 'personal best!' : `+${(tip.d.laps[tip.i] - tip.d.best).toFixed(3)} off PB`}
           </div>
-          {PLANS[tip.d.id][tip.i].redTime > 20 && (
+          {PLANS[tip.d.id][tip.i].redTime >= 10 && (
             <div className="font-mono text-race">🚩 {fmt(PLANS[tip.d.id][tip.i].redTime, 0)} stopped for a red flag</div>
           )}
           {PLANS[tip.d.id][tip.i].pitTime > 0 && (
-            <div className="font-mono">⚫ {fmt(PLANS[tip.d.id][tip.i].pitTime, 0)} in the pit lane</div>
+            <div className="font-mono">
+              ⚫ {PLANS[tip.d.id][tip.i].pits > 1 ? `${PLANS[tip.d.id][tip.i].pits} pit visits, ` : ''}
+              {fmt(PLANS[tip.d.id][tip.i].pitTime, 0)} in the pit lane · missed the timing line
+            </div>
           )}
         </div>
       )}

@@ -220,11 +220,13 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
     }
     for (const b of BLACK_FLAGS) {
       if (b.start > from && b.start <= t) {
+        // a repeat visit before the kart has crossed the timing line again
+        const again = BLACK_FLAGS.some((o) => o.driver.id === b.driver.id && o.lap === b.lap && o.start < b.start)
         const text =
           b.driver.id === FASTEST.id
-            ? `⚫ ${b.driver.short} → pits. Yellow means SLOW, Christian 🟨`
-            : `⚫ ${b.driver.short} → pit lane for a word`
-        fresh.push({ key: `bf-${b.driver.id}-${b.lap}`, tone: 'black', text })
+            ? `⚫ ${b.driver.short} → pits${again ? ' AGAIN' : ''}. Yellow means SLOW, Christian 🟨`
+            : `⚫ ${b.driver.short} → pit lane${again ? ' again' : ' for a word'} · lap not counted`
+        fresh.push({ key: `bf-${b.driver.id}-${b.start}`, tone: 'black', text })
       }
     }
     if (fresh.length) {
@@ -316,8 +318,8 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
 
   const trackKarts = (bridgeLayer: boolean) =>
     live.map((s) => {
-      if (s.k.status === 'finished' || s.k.status === 'pit' || onBridge(s.k.progress) !== bridgeLayer) return null
-      const { x, y } = point(s.k.progress, ((s.d.id % 5) - 2) * 14)
+      if (s.k.status === 'finished' || s.k.status === 'pit' || onBridge(s.k.pos) !== bridgeLayer) return null
+      const { x, y } = point(s.k.pos, ((s.d.id % 5) - 2) * 14)
       return kart(s, x, y)
     })
 
@@ -562,7 +564,7 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
               ))}
               {BLACK_FLAGS.map((b) => (
                 <div
-                  key={`${b.driver.id}-${b.lap}`}
+                  key={`${b.driver.id}-${b.start}`}
                   className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/60 bg-black"
                   style={{ left: `${(b.start / RACE_DURATION) * 100}%` }}
                   title={`${b.driver.name} pit visit`}
@@ -680,10 +682,10 @@ export default function RaceReplay({ onPick }: { onPick: (d: Driver) => void }) 
         </div>
       </div>
       <p className="mt-3 text-xs text-muted">
-        The timing sheet doesn't record flags, so race control is reconstructed: red flags are the moments almost the whole
-        field's laps balloon together, and ⚫ pit visits are laps still way off the pace once red-flag time is removed (the
-        black-flag chats, plus the odd incident). Karts drive at their real pace, stop on reds, and sit on the naughty step in
-        the pit lane.
+        The timing sheet doesn't record flags, so race control is reconstructed: the podium never pitted, so their slow laps
+        mark out the red flags. A ⚫ pit visit misses the timing line, so it hides inside a lap long enough for an extra lap
+        of driving plus the chat. Karts drive at their real pace, stop on reds, and sit on the naughty step in the pit lane,
+        sometimes more than once before they cross the line.
       </p>
     </Section>
   )
